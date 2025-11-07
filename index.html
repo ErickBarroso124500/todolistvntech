@@ -14,37 +14,64 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root {
+            --bg-light: #f8fafc;
             --bg-dark: #0f172a;
-            --card-bg: #1e293b;
-            --text-primary: #f8fafc;
-            --text-secondary: #94a3b8;
-            --border: #334155;
+            --card-light: #ffffff;
+            --card-dark: #1e293b;
+            --text-light: #1e293b;
+            --text-dark: #f8fafc;
+            --text-muted-light: #64748b;
+            --text-muted-dark: #94a3b8;
+            --border-light: #e2e8f0;
+            --border-dark: #334155;
             --primary: #3b82f6;
             --primary-hover: #2563eb;
             --success: #10b981;
             --danger: #ef4444;
             --warning: #f59e0b;
-            --shadow: 0 10px 25px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --shadow-light: 0 10px 25px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --shadow-dark: 0 10px 25px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
         }
+
+        [data-theme="light"] {
+            --bg: var(--bg-light);
+            --card-bg: var(--card-light);
+            --text-primary: var(--text-light);
+            --text-secondary: var(--text-muted-light);
+            --border: var(--border-light);
+            --shadow: var(--shadow-light);
+        }
+
+        [data-theme="dark"] {
+            --bg: var(--bg-dark);
+            --card-bg: var(--card-dark);
+            --text-primary: var(--text-dark);
+            --text-secondary: var(--text-muted-dark);
+            --border: var(--border-dark);
+            --shadow: var(--shadow-dark);
+        }
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
+
         body {
-            background: var(--bg-dark);
+            background: var(--bg);
             color: var(--text-primary);
             font-family: 'Inter', sans-serif;
             min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 1rem;
+            transition: background 0.3s ease, color 0.3s ease;
         }
-        .auth-container {
+
+        .auth-container, .dashboard-container {
             width: 100%;
             max-width: 420px;
+            margin: 2rem auto;
+            padding: 0 1rem;
         }
+
         .card {
             background: var(--card-bg);
             border: 1px solid var(--border);
@@ -53,16 +80,20 @@
             overflow: hidden;
             transition: all 0.3s ease;
         }
+
         .card:hover {
             transform: translateY(-4px);
-            box-shadow: 0 20px 40px -5px rgba(0, 0, 0, 0.2);
+            box-shadow: var(--shadow);
         }
+
         .card-header {
             background: linear-gradient(135deg, #1e40af, #1e3a8a);
             padding: 2rem 1.5rem;
             text-align: center;
             border-bottom: 1px solid var(--border);
+            position: relative;
         }
+
         .card-header h1 {
             font-size: 1.75rem;
             font-weight: 700;
@@ -71,15 +102,41 @@
             align-items: center;
             justify-content: center;
             gap: 0.75rem;
+            color: white;
         }
+
         .card-header i {
             font-size: 1.5rem;
         }
+
+        .theme-toggle {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .theme-toggle:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
         .card-body {
             padding: 2rem;
         }
+
         .form-control, .form-select {
-            background: rgba(255, 255, 255, 0.05);
+            background: rgba(0, 0, 0, 0.05);
             border: 1px solid var(--border);
             color: var(--text-primary);
             border-radius: 0.75rem;
@@ -87,15 +144,18 @@
             font-size: 1rem;
             transition: all 0.2s ease;
         }
+
         .form-control::placeholder {
             color: var(--text-secondary);
         }
+
         .form-control:focus, .form-select:focus {
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(0, 0, 0, 0.08);
             border-color: var(--primary);
             box-shadow: 0 0 0 0.2rem rgba(59, 130, 246, 0.25);
             color: var(--text-primary);
         }
+
         .btn {
             border-radius: 0.75rem;
             padding: 0.75rem 1rem;
@@ -107,40 +167,50 @@
             justify-content: center;
             gap: 0.5rem;
         }
+
         .btn-primary {
             background: var(--primary);
             border: none;
+            color: white;
         }
+
         .btn-primary:hover {
             background: var(--primary-hover);
             transform: translateY(-1px);
         }
+
         .btn-link {
             color: var(--primary);
             text-decoration: none;
             font-weight: 500;
         }
+
         .btn-link:hover {
             color: var(--primary-hover);
         }
+
         .form-check-input {
-            background-color: rgba(255, 255, 255, 0.1);
+            background-color: rgba(0, 0, 0, 0.1);
             border-color: var(--border);
         }
+
         .form-check-input:checked {
             background-color: var(--primary);
             border-color: var(--primary);
         }
+
         .alert {
             border-radius: 0.75rem;
             border: none;
             font-size: 0.9rem;
         }
+
         .toggle-link {
             text-align: center;
             margin-top: 1.5rem;
             font-size: 0.95rem;
         }
+
         .loading {
             display: none;
             width: 1.2rem;
@@ -150,62 +220,78 @@
             border-radius: 50%;
             animation: spin 0.8s linear infinite;
         }
+
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
+
         .task-item {
-            background: rgba(255, 255, 255, 0.05);
+            background: rgba(0, 0, 0, 0.03);
             border: 1px solid var(--border);
             border-radius: 0.75rem;
             padding: 1rem;
             margin-bottom: 1rem;
             transition: all 0.2s ease;
         }
+
         .task-item:hover {
-            background: rgba(255, 255, 255, 0.08);
+            background: rgba(0, 0, 0, 0.06);
             border-color: var(--primary);
         }
+
         .task-title {
             font-weight: 600;
             font-size: 1.1rem;
             margin-bottom: 0.5rem;
             color: var(--text-primary);
         }
+
         .task-desc {
             font-size: 0.9rem;
             color: var(--text-secondary);
             margin-bottom: 0.75rem;
         }
+
         .task-meta {
             font-size: 0.8rem;
             color: var(--text-secondary);
             display: flex;
             justify-content: space-between;
             align-items: center;
+            flex-wrap: wrap;
+            gap: 0.5rem;
         }
+
+        .task-time {
+            font-family: 'Courier New', monospace;
+            background: rgba(0, 0, 0, 0.05);
+            padding: 0.2rem 0.5rem;
+            border-radius: 0.5rem;
+        }
+
         .badge {
             font-size: 0.75rem;
             padding: 0.35em 0.65em;
             border-radius: 50px;
         }
-        .badge-pending {
-            background: var(--warning);
-            color: #000;
-        }
+
         .badge-completed {
             background: var(--success);
             color: white;
         }
+
         .empty-state {
             text-align: center;
             padding: 3rem 1rem;
             color: var(--text-secondary);
         }
+
         .empty-state i {
             font-size: 3rem;
             margin-bottom: 1rem;
             opacity: 0.3;
         }
+
         .user-avatar {
             width: 40px;
             height: 40px;
@@ -216,41 +302,52 @@
             justify-content: center;
             font-weight: 600;
             font-size: 0.9rem;
+            color: white;
         }
-        .toast {
-            position: fixed;
-            bottom: 1rem;
-            right: 1rem;
-            z-index: 1055;
-            min-width: 300px;
-            animation: slideIn 0.3s ease;
-        }
-        @keyframes slideIn {
-            from { transform: translateX(100%); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
+
         .progress {
             height: 4px;
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(0, 0, 0, 0.1);
             border-radius: 2px;
             overflow: hidden;
             margin-top: 1rem;
         }
+
         .progress-bar {
             height: 100%;
             background: var(--primary);
             width: 0%;
             transition: width 0.3s ease;
         }
+
+        .toast-container {
+            position: fixed;
+            bottom: 1rem;
+            right: 1rem;
+            z-index: 1055;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .toast {
+            min-width: 300px;
+            animation: slideIn 0.3s ease;
+        }
     </style>
 </head>
-<body>
+<body data-theme="dark">
 
     <!-- Login Page -->
     <div id="login-page" class="auth-container">
         <div class="card">
             <div class="card-header">
-                <h1><i class="bi bi-shield-lock"></i> TaskFlow</h1>
+                <h1>TaskFlow</h1>
+                <button class="theme-toggle" id="theme-toggle-login">
+                    <i class="bi bi-moon-stars-fill"></i>
+                </button>
             </div>
             <div class="card-body">
                 <form id="login-form">
@@ -283,7 +380,10 @@
     <div id="register-page" class="auth-container" style="display: none;">
         <div class="card">
             <div class="card-header">
-                <h1><i class="bi bi-person-plus"></i> Criar Conta</h1>
+                <h1>Criar Conta</h1>
+                <button class="theme-toggle" id="theme-toggle-register">
+                    <i class="bi bi-sun-fill"></i>
+                </button>
             </div>
             <div class="card-body">
                 <form id="register-form">
@@ -313,7 +413,7 @@
     </div>
 
     <!-- Dashboard Page -->
-    <div id="dashboard-page" class="container" style="display: none; max-width: 800px;">
+    <div id="dashboard-page" class="container" style="display: none; max-width: 800px; margin: 2rem auto; padding: 0 1rem;">
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <div class="d-flex align-items-center gap-3">
@@ -323,9 +423,14 @@
                         <small class="text-muted">Bem-vindo de volta!</small>
                     </div>
                 </div>
-                <button id="logout-btn" class="btn btn-outline-light btn-sm">
-                    <i class="bi bi-box-arrow-right"></i> Sair
-                </button>
+                <div class="d-flex gap-2">
+                    <button class="theme-toggle" id="theme-toggle-dashboard">
+                        <i class="bi bi-moon-stars-fill"></i>
+                    </button>
+                    <button id="logout-btn" class="btn btn-outline-secondary btn-sm">
+                        Sair
+                    </button>
+                </div>
             </div>
             <div class="card-body">
 
@@ -346,7 +451,9 @@
                                 <textarea class="form-control" id="description" rows="2" placeholder="Descrição (opcional)"></textarea>
                             </div>
                             <div class="col-12">
-                                <select multiple class="form-select" id="assigned-users" size="4" style="height: auto;"></select>
+                                <select multiple class="form-select" id="assigned-users" size="4">
+                                    <option disabled>Carregando usuários...</option>
+                                </select>
                                 <small class="text-muted">Segure Ctrl (ou Cmd) para selecionar múltiplos</small>
                             </div>
                             <div class="col-12">
@@ -382,8 +489,8 @@
         </div>
     </div>
 
-    <!-- Toast Notifications -->
-    <div id="toast-container"></div>
+    <!-- Toast Container -->
+    <div class="toast-container" id="toast-container"></div>
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
@@ -402,102 +509,118 @@
     </script>
 
     <script>
-        // === CONFIGURAÇÃO DO SUPABASE ===
-        const SUPABASE_URL = 'https://djxcvgrunadpkzwpxtom.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRqeGN2Z3J1bmFkcGt6d3B4dG9tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI0NjczOTYsImV4cCI6MjA3ODA0MzM5Nn0.CRTsAj-yIqXJwrx1CGh6dhTjvsgyazHidOseJQwyRpI';
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        // === CONFIGURAÇÃO ===
+        const CONFIG = {
+            SUPABASE_URL: 'https://djxcvgrunadpkzwpxtom.supabase.co',
+            SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRqeGN2Z3J1bmFkcGt6d3B4dG9tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI0NjczOTYsImV4cCI6MjA3ODA0MzM5Nn0.CRTsAj-yIqXJwrx1CGh6dhTjvsgyazHidOseJQwyRpI',
+            SEND_PUSH_URL: 'https://djxcvgrunadpkzwpxtom.supabase.co/functions/v1/send-push'
+        };
 
-        // === EDGE FUNCTION URL (OBRIGATÓRIO) ===
-        const SEND_PUSH_URL = `${SUPABASE_URL}/functions/v1/send-push`;
+        const supabase = window.supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
 
-        let currentUser = null;
-        let pauloId = null;
-        let realtimeSubscription = null;
+        // === ESTADO GLOBAL ===
+        let state = {
+            currentUser: null,
+            pauloId: null,
+            realtime: null,
+            theme: localStorage.getItem('theme') || 'dark'
+        };
 
-        // === UI Elements ===
-        const loginPage = document.getElementById('login-page');
-        const registerPage = document.getElementById('register-page');
-        const dashboardPage = document.getElementById('dashboard-page');
-        const showRegister = document.getElementById('show-register');
-        const showLogin = document.getElementById('show-login');
-
-        // === Navigation ===
-        showRegister.addEventListener('click', (e) => {
-            e.preventDefault();
-            loginPage.style.display = 'none';
-            registerPage.style.display = 'block';
-        });
-
-        showLogin.addEventListener('click', (e) => {
-            e.preventDefault();
-            registerPage.style.display = 'none';
-            loginPage.style.display = 'block';
-        });
-
-        // === Toast Notification ===
-        function showToast(message, type = 'success') {
-            const toast = document.createElement('div');
-            toast.className = `toast align-items-center text-bg-${type} border-0`;
-            toast.innerHTML = `
-                <div class="d-flex">
-                    <div class="toast-body">${message}</div>
-                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
-                </div>
-            `;
-            document.getElementById('toast-container').appendChild(toast);
-            new bootstrap.Toast(toast, { delay: 4000 }).show();
-            setTimeout(() => toast.remove(), 5000);
-        }
-
-        // === Loading State ===
-        function setLoading(button, loading) {
-            const loadingEl = button.querySelector('.loading');
-            const textEl = button.querySelector('.btn-text');
-            if (loading) {
-                loadingEl.style.display = 'inline-block';
-                textEl.style.opacity = '0.7';
-                button.disabled = true;
-            } else {
-                loadingEl.style.display = 'none';
-                textEl.style.opacity = '1';
-                button.disabled = false;
-            }
-        }
-
-        // === SEND PUSH VIA EDGE FUNCTION (100% FUNCIONAL) ===
-        async function sendPushViaEdge(title, message, userIds) {
-            try {
-                const response = await fetch(SEND_PUSH_URL, {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ title, message, userIds })
-                });
-
-                if (!response.ok) {
-                    const error = await response.text();
-                    console.error('Erro no push:', error);
-                    return false;
+        // === DOM ELEMENTS ===
+        const DOM = {
+            pages: {
+                login: document.getElementById('login-page'),
+                register: document.getElementById('register-page'),
+                dashboard: document.getElementById('dashboard-page')
+            },
+            forms: {
+                login: document.getElementById('login-form'),
+                register: document.getElementById('register-form'),
+                task: document.getElementById('task-form')
+            },
+            elements: {
+                userGreeting: document.getElementById('user-greeting'),
+                userAvatar: document.getElementById('user-avatar'),
+                taskList: document.getElementById('tasks-list'),
+                emptyState: document.getElementById('empty-state'),
+                taskCounter: document.getElementById('task-counter'),
+                progressBar: document.getElementById('progress-bar'),
+                progressText: document.getElementById('progress-text'),
+                assignedUsers: document.getElementById('assigned-users')
+            },
+            toggles: {
+                showRegister: document.getElementById('show-register'),
+                showLogin: document.getElementById('show-login'),
+                taskForm: document.getElementById('toggle-task-form'),
+                theme: {
+                    login: document.getElementById('theme-toggle-login'),
+                    register: document.getElementById('theme-toggle-register'),
+                    dashboard: document.getElementById('theme-toggle-dashboard')
                 }
-                return true;
-            } catch (err) {
-                console.error('Falha no fetch:', err);
-                return false;
+            },
+            alerts: {
+                login: document.getElementById('login-error'),
+                register: document.getElementById('register-error')
             }
-        }
+        };
 
-        // === Login ===
-        document.getElementById('login-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const button = e.target.querySelector('button');
-            setLoading(button, true);
-            const name = document.getElementById('login-name').value.trim();
-            const password = document.getElementById('login-password').value;
+        // === UTILIDADES ===
+        const Utils = {
+            formatDateTime: (date) => {
+                return new Date(date).toLocaleString('pt-BR', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+            },
+            setLoading: (button, loading) => {
+                const loadingEl = button.querySelector('.loading');
+                const textEl = button.querySelector('.btn-text');
+                if (loading) {
+                    loadingEl.style.display = 'inline-block';
+                    textEl.style.opacity = '0.7';
+                    button.disabled = true;
+                } else {
+                    loadingEl.style.display = 'none';
+                    textEl.style.opacity = '1';
+                    button.disabled = false;
+                }
+            },
+            showToast: (message, type = 'success') => {
+                const toast = document.createElement('div');
+                toast.className = `toast align-items-center text-bg-${type} border-0`;
+                toast.innerHTML = `
+                    <div class="d-flex">
+                        <div class="toast-body">${message}</div>
+                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+                    </div>
+                `;
+                document.getElementById('toast-container').appendChild(toast);
+                const bsToast = new bootstrap.Toast(toast, { delay: 4000 });
+                bsToast.show();
+                setTimeout(() => toast.remove(), 5000);
+            },
+            setTheme: (theme) => {
+                document.body.setAttribute('data-theme', theme);
+                state.theme = theme;
+                localStorage.setItem('theme', theme);
 
-            try {
-                let { data: user, error } = await supabase
+                const icon = theme === 'dark' ? 'bi-moon-stars-fill' : 'bi-sun-fill';
+                Object.values(DOM.toggles.theme).forEach(btn => {
+                    if (btn) btn.innerHTML = `<i class="bi ${icon}"></i>`;
+                });
+            },
+            toggleTheme: () => {
+                Utils.setTheme(state.theme === 'dark' ? 'light' : 'dark');
+            }
+        };
+
+        // === MÓDULO DE AUTENTICAÇÃO ===
+        const Auth = {
+            async login(name, password) {
+                const { data: user, error } = await supabase
                     .from('users')
                     .select('*')
                     .eq('name', name)
@@ -507,27 +630,9 @@
                 if (!user) throw new Error('Usuário não encontrado');
                 if (user.password !== password) throw new Error('Senha incorreta');
 
-                currentUser = user;
-                await loginSuccess();
-            } catch (err) {
-                document.getElementById('login-error').textContent = err.message;
-                document.getElementById('login-error').style.display = 'block';
-            } finally {
-                setLoading(button, false);
-            }
-        });
-
-        // === Register ===
-        document.getElementById('register-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const button = e.target.querySelector('button');
-            setLoading(button, true);
-            const name = document.getElementById('register-name').value.trim();
-            const password = document.getElementById('register-password').value;
-            const confirm = document.getElementById('register-confirm').value;
-
-            try {
-                if (password !== confirm) throw new Error('As senhas não coincidem');
+                return user;
+            },
+            async register(name, password) {
                 if (password.length < 6) throw new Error('A senha deve ter pelo menos 6 caracteres');
 
                 const isAdmin = name.toLowerCase() === 'paulo';
@@ -538,192 +643,286 @@
                     .single();
 
                 if (error) throw error;
+                return newUser;
+            },
+            async initSession(user) {
+                state.currentUser = user;
+                if (user.is_admin) state.pauloId = user.id;
 
-                currentUser = newUser;
-                if (isAdmin) pauloId = newUser.id;
-                await loginSuccess();
-                showToast('Conta criada com sucesso!', 'success');
-            } catch (err) {
-                document.getElementById('register-error').textContent = err.message;
-                document.getElementById('register-error').style.display = 'block';
-            } finally {
-                setLoading(button, false);
+                OneSignalDeferred.push(async (OneSignal) => {
+                    await OneSignal.login(user.id.toString());
+                });
+
+                DOM.elements.userAvatar.textContent = user.name.charAt(0).toUpperCase();
+                DOM.elements.userGreeting.textContent = user.name;
+
+                DOM.pages.login.style.display = 'none';
+                DOM.pages.register.style.display = 'none';
+                DOM.pages.dashboard.style.display = 'block';
+
+                if (user.is_admin) {
+                    document.getElementById('admin-section').style.display = 'block';
+                    await Task.loadAssignableUsers();
+                }
+
+                await Task.load();
+                Realtime.setup();
+            },
+            logout() {
+                OneSignalDeferred.push(async (OneSignal) => { await OneSignal.logout(); });
+                state.currentUser = null;
+                state.pauloId = null;
+                Realtime.destroy();
+                DOM.pages.dashboard.style.display = 'none';
+                DOM.pages.login.style.display = 'block';
+                DOM.forms.login.reset();
+                Utils.showToast('Logout realizado com sucesso', 'info');
             }
-        });
+        };
 
-        // === Login Success ===
-        async function loginSuccess() {
-            OneSignalDeferred.push(async (OneSignal) => {
-                await OneSignal.login(currentUser.id.toString());
-            });
+        // === MÓDULO DE TAREFAS ===
+        const Task = {
+            async create(title, description, assignedIds) {
+                const { data: task, error } = await supabase
+                    .from('tasks')
+                    .insert({
+                        title,
+                        description,
+                        assigned_to: assignedIds,
+                        created_by: state.currentUser.id,
+                        created_at: new Date().toISOString()
+                    })
+                    .select()
+                    .single();
 
-            document.getElementById('user-avatar').textContent = currentUser.name.charAt(0).toUpperCase();
-            document.getElementById('user-greeting').textContent = currentUser.name;
+                if (error) throw error;
 
-            loginPage.style.display = 'none';
-            registerPage.style.display = 'none';
-            dashboardPage.style.display = 'block';
-
-            if (currentUser.is_admin) {
-                document.getElementById('admin-section').style.display = 'block';
-                pauloId = currentUser.id;
-                loadUsersForAssignment();
-            }
-
-            loadTasks();
-            setupRealtime();
-        }
-
-        // === Load Users for Assignment ===
-        async function loadUsersForAssignment() {
-            const { data: users } = await supabase.from('users').select('id, name').neq('id', currentUser.id);
-            const select = document.getElementById('assigned-users');
-            select.innerHTML = '';
-            users.forEach(u => {
-                const opt = document.createElement('option');
-                opt.value = u.id;
-                opt.textContent = u.name;
-                select.appendChild(opt);
-            });
-        }
-
-        // === Create Task ===
-        document.getElementById('task-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const title = document.getElementById('title').value.trim();
-            const description = document.getElementById('description').value.trim();
-            const assignedIds = Array.from(document.getElementById('assigned-users').selectedOptions).map(o => o.value);
-
-            if (!title || assignedIds.length === 0) {
-                showToast('Preencha título e selecione usuários', 'danger');
-                return;
-            }
-
-            const { data: task, error } = await supabase
-                .from('tasks')
-                .insert({ title, description, assigned_to: assignedIds, created_by: currentUser.id })
-                .select()
-                .single();
-
-            if (error) {
-                showToast('Erro ao criar tarefa', 'danger');
-            } else {
-                document.getElementById('task-form').reset();
-                document.getElementById('task-form').style.display = 'none';
-                showToast('Tarefa criada com sucesso!', 'success');
-                loadTasks();
-
-                // Envia push via Edge Function
-                const success = await sendPushViaEdge(
+                await Notification.send(
                     `Nova Tarefa: ${title}`,
                     description || 'Você tem uma nova tarefa.',
                     assignedIds
                 );
-                if (success) showToast('Notificação enviada!', 'success');
+
+                return task;
+            },
+            async load() {
+                const { data: tasks } = await supabase
+                    .from('tasks')
+                    .select('*')
+                    .contains('assigned_to', [state.currentUser.id])
+                    .order('created_at', { ascending: false });
+
+                const list = DOM.elements.taskList;
+                const empty = DOM.elements.emptyState;
+                list.innerHTML = '';
+
+                if (!tasks || tasks.length === 0) {
+                    empty.style.display = 'block';
+                    DOM.elements.taskCounter.textContent = '0 tarefas';
+                    Task.updateProgress(0, 0);
+                    return;
+                }
+
+                empty.style.display = 'none';
+                const completed = tasks.filter(t => t.status === 'completed').length;
+                DOM.elements.taskCounter.textContent = `${tasks.length} tarefa${tasks.length > 1 ? 's' : ''}`;
+                Task.updateProgress(completed, tasks.length);
+
+                tasks.forEach(task => {
+                    const item = document.createElement('div');
+                    item.className = 'task-item';
+                    item.innerHTML = `
+                        <div class="task-title">${task.title}</div>
+                        ${task.description ? `<div class="task-desc">${task.description}</div>` : ''}
+                        <div class="task-meta">
+                            <span class="task-time">${Utils.formatDateTime(task.created_at)}</span>
+                            ${task.status === 'pending' ? 
+                                `<button class="btn btn-success btn-sm" onclick="Task.complete('${task.id}')">
+                                    Concluir
+                                </button>` :
+                                `<span class="badge badge-completed">Concluída</span>`
+                            }
+                        </div>
+                    `;
+                    list.appendChild(item);
+                });
+            },
+            async complete(taskId) {
+                const { data: task } = await supabase.from('tasks').select('*').eq('id', taskId).single();
+                await supabase.from('tasks').update({ 
+                    status: 'completed', 
+                    completed_at: new Date().toISOString() 
+                }).eq('id', taskId);
+
+                await Task.load();
+
+                if (task.created_by === state.pauloId) {
+                    await Notification.send(
+                        `Tarefa Concluída: ${task.title}`,
+                        `${state.currentUser.name} concluiu a tarefa.`,
+                        [state.pauloId.toString()]
+                    );
+                }
+            },
+            updateProgress(completed, total) {
+                const percent = total > 0 ? Math.round((completed / total) * 100) : 0;
+                DOM.elements.progressBar.style.width = `${percent}%`;
+                DOM.elements.progressText.textContent = `${percent}%`;
+            },
+            async loadAssignableUsers() {
+                const { data: users } = await supabase.from('users').select('id, name').neq('id', state.currentUser.id);
+                const select = DOM.elements.assignedUsers;
+                select.innerHTML = '';
+                if (users) {
+                    users.forEach(u => {
+                        const opt = document.createElement('option');
+                        opt.value = u.id;
+                        opt.textContent = u.name;
+                        select.appendChild(opt);
+                    });
+                }
             }
-        });
+        };
 
-        // === Load Tasks ===
-        async function loadTasks() {
-            const { data: tasks } = await supabase
-                .from('tasks')
-                .select('*')
-                .contains('assigned_to', [currentUser.id])
-                .order('created_at', { ascending: false });
-
-            const list = document.getElementById('tasks-list');
-            const empty = document.getElementById('empty-state');
-            list.innerHTML = '';
-
-            if (tasks.length === 0) {
-                empty.style.display = 'block';
-                document.getElementById('task-counter').textContent = '0 tarefas';
-                updateProgress(0, 0);
-                return;
+        // === MÓDULO DE NOTIFICAÇÕES ===
+        const Notification = {
+            async send(title, message, userIds) {
+                try {
+                    const response = await fetch(CONFIG.SEND_PUSH_URL, {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${CONFIG.SUPABASE_ANON_KEY}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ title, message, userIds })
+                    });
+                    return response.ok;
+                } catch (err) {
+                    console.error('Push failed:', err);
+                    return false;
+                }
             }
+        };
 
-            empty.style.display = 'none';
-            const completed = tasks.filter(t => t.status === 'completed').length;
-            document.getElementById('task-counter').textContent = `${tasks.length} tarefa${tasks.length > 1 ? 's' : ''}`;
-            updateProgress(completed, tasks.length);
-
-            tasks.forEach(task => {
-                const item = document.createElement('div');
-                item.className = 'task-item';
-                item.innerHTML = `
-                    <div class="task-title">${task.title}</div>
-                    ${task.description ? `<div class="task-desc">${task.description}</div>` : ''}
-                    <div class="task-meta">
-                        <small>Criada em ${new Date(task.created_at).toLocaleDateString('pt-BR')}</small>
-                        ${task.status === 'pending' ? 
-                            `<button class="btn btn-success btn-sm" onclick="markCompleted('${task.id}')">
-                                <i class="bi bi-check-lg"></i> Concluir
-                            </button>` :
-                            `<span class="badge badge-completed">Concluída</span>`
-                        }
-                    </div>
-                `;
-                list.appendChild(item);
-            });
-        }
-
-        function updateProgress(completed, total) {
-            const percent = total > 0 ? Math.round((completed / total) * 100) : 0;
-            document.getElementById('progress-bar').style.width = `${percent}%`;
-            document.getElementById('progress-text').textContent = `${percent}%`;
-        }
-
-        // === Mark Completed ===
-        window.markCompleted = async function(taskId) {
-            const { data: task } = await supabase.from('tasks').select('*').eq('id', taskId).single();
-            await supabase.from('tasks').update({ 
-                status: 'completed', 
-                completed_at: new Date().toISOString() 
-            }).eq('id', taskId);
-            loadTasks();
-
-            if (task.created_by === pauloId) {
-                const success = await sendPushViaEdge(
-                    `Tarefa Concluída: ${task.title}`,
-                    `${currentUser.name} concluiu a tarefa.`,
-                    [pauloId.toString()]
-                );
-                if (success) showToast('Notificação enviada ao criador!', 'success');
+        // === MÓDULO DE REALTIME ===
+        const Realtime = {
+            setup() {
+                if (state.realtime) state.realtime.unsubscribe();
+                state.realtime = supabase.channel('tasks')
+                    .on('postgres_changes', { event: '*', schema: 'public', table: 'tasks' }, () => {
+                        if (state.currentUser) Task.load();
+                    })
+                    .subscribe();
+            },
+            destroy() {
+                if (state.realtime) {
+                    state.realtime.unsubscribe();
+                    state.realtime = null;
+                }
             }
-        }
+        };
 
-        // === Realtime ===
-        function setupRealtime() {
-            if (realtimeSubscription) realtimeSubscription.unsubscribe();
-            realtimeSubscription = supabase.channel('tasks')
-                .on('postgres_changes', { event: '*', schema: 'public', table: 'tasks' }, () => {
-                    if (currentUser) loadTasks();
-                })
-                .subscribe();
-        }
-
-        // === Toggle Task Form ===
-        document.getElementById('toggle-task-form').addEventListener('click', () => {
-            const form = document.getElementById('task-form');
-            form.style.display = form.style.display === 'none' ? 'block' : 'none';
-        });
-
-        // === Logout ===
-        document.getElementById('logout-btn').addEventListener('click', () => {
-            OneSignalDeferred.push(async (OneSignal) => { await OneSignal.logout(); });
-            currentUser = null; pauloId = null;
-            if (realtimeSubscription) realtimeSubscription.unsubscribe();
-            dashboardPage.style.display = 'none';
-            loginPage.style.display = 'block';
-            document.getElementById('login-form').reset();
-            showToast('Logout realizado com sucesso', 'info');
-        });
-
-        // === Init ===
+        // === EVENTOS ===
         document.addEventListener('DOMContentLoaded', () => {
+            Utils.setTheme(state.theme);
+
+            // Navegação
+            DOM.toggles.showRegister.addEventListener('click', (e) => {
+                e.preventDefault();
+                DOM.pages.login.style.display = 'none';
+                DOM.pages.register.style.display = 'block';
+            });
+
+            DOM.toggles.showLogin.addEventListener('click', (e) => {
+                e.preventDefault();
+                DOM.pages.register.style.display = 'none';
+                DOM.pages.login.style.display = 'block';
+            });
+
+            // Tema
+            Object.values(DOM.toggles.theme).forEach(btn => {
+                if (btn) btn.addEventListener('click', Utils.toggleTheme);
+            });
+
+            // Formulários
+            DOM.forms.login.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const btn = e.target.querySelector('button');
+                Utils.setLoading(btn, true);
+                DOM.alerts.login.style.display = 'none';
+
+                try {
+                    const name = document.getElementById('login-name').value.trim();
+                    const password = document.getElementById('login-password').value;
+                    const user = await Auth.login(name, password);
+                    await Auth.initSession(user);
+                } catch (err) {
+                    DOM.alerts.login.textContent = err.message;
+                    DOM.alerts.login.style.display = 'block';
+                } finally {
+                    Utils.setLoading(btn, false);
+                }
+            });
+
+            DOM.forms.register.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const btn = e.target.querySelector('button');
+                Utils.setLoading(btn, true);
+                DOM.alerts.register.style.display = 'none';
+
+                try {
+                    const name = document.getElementById('register-name').value.trim();
+                    const password = document.getElementById('register-password').value;
+                    const confirm = document.getElementById('register-confirm').value;
+
+                    if (password !== confirm) throw new Error('As senhas não coincidem');
+
+                    const user = await Auth.register(name, password);
+                    await Auth.initSession(user);
+                    Utils.showToast('Conta criada com sucesso!', 'success');
+                } catch (err) {
+                    DOM.alerts.register.textContent = err.message;
+                    DOM.alerts.register.style.display = 'block';
+                } finally {
+                    Utils.setLoading(btn, false);
+                }
+            });
+
+            DOM.forms.task.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const title = document.getElementById('title').value.trim();
+                const description = document.getElementById('description').value.trim();
+                const assignedIds = Array.from(DOM.elements.assignedUsers.selectedOptions).map(o => o.value);
+
+                if (!title || assignedIds.length === 0) {
+                    Utils.showToast('Preencha título e selecione usuários', 'danger');
+                    return;
+                }
+
+                try {
+                    await Task.create(title, description, assignedIds);
+                    DOM.forms.task.reset();
+                    DOM.forms.task.style.display = 'none';
+                    Utils.showToast('Tarefa criada com sucesso!', 'success');
+                } catch (err) {
+                    Utils.showToast('Erro ao criar tarefa', 'danger');
+                }
+            });
+
+            DOM.toggles.taskForm.addEventListener('click', () => {
+                const form = DOM.forms.task;
+                form.style.display = form.style.display === 'none' ? 'block' : 'none';
+            });
+
+            document.getElementById('logout-btn').addEventListener('click', Auth.logout);
+
+            // Demo
             document.getElementById('login-name').value = 'Paulo';
             document.getElementById('login-password').value = '123';
         });
+
+        // Expor função global
+        window.Task = Task;
     </script>
 </body>
 </html>
