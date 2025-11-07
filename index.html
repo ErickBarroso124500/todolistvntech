@@ -3,195 +3,387 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lista de Tarefas Profissional</title>
-    <!-- Bootstrap CSS -->
+    <title>TaskFlow - Gerenciador Profissional</title>
+    <!-- Bootstrap 5 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Supabase JS Client -->
+    <!-- Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Supabase JS -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root {
-            --primary: #4361ee;
-            --primary-dark: #3a56d4;
-            --success: #06d6a0;
-            --danger: #ef476f;
-            --warning: #ffd166;
-            --dark: #2b2d42;
-            --light: #f8f9fa;
-            --gray: #8d99ae;
+            --bg-dark: #0f172a;
+            --card-bg: #1e293b;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --border: #334155;
+            --primary: #3b82f6;
+            --primary-hover: #2563eb;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --shadow: 0 10px 25px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
         body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
             min-height: 100vh;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            color: #333;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
         }
-        .container {
-            max-width: 600px;
-            margin: 40px auto;
-            padding: 0 15px;
+        .auth-container {
+            width: 100%;
+            max-width: 420px;
         }
         .card {
-            border: none;
-            border-radius: 16px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 1rem;
+            box-shadow: var(--shadow);
             overflow: hidden;
-            transition: transform 0.2s;
+            transition: all 0.3s ease;
         }
-        .card:hover { transform: translateY(-5px); }
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px -5px rgba(0, 0, 0, 0.2);
+        }
         .card-header {
-            background: var(--primary);
-            color: white;
-            border-bottom: none;
-            padding: 1.5rem;
+            background: linear-gradient(135deg, #1e40af, #1e3a8a);
+            padding: 2rem 1.5rem;
             text-align: center;
-            font-weight: 600;
-            font-size: 1.4rem;
+            border-bottom: 1px solid var(--border);
         }
-        .card-body { padding: 2rem; }
+        .card-header h1 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+        }
+        .card-header i {
+            font-size: 1.5rem;
+        }
+        .card-body {
+            padding: 2rem;
+        }
         .form-control, .form-select {
-            border-radius: 12px;
-            padding: 12px 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+            border-radius: 0.75rem;
+            padding: 0.75rem 1rem;
             font-size: 1rem;
-            border: 1px solid #ced4da;
-            transition: all 0.2s;
+            transition: all 0.2s ease;
+        }
+        .form-control::placeholder {
+            color: var(--text-secondary);
         }
         .form-control:focus, .form-select:focus {
+            background: rgba(255, 255, 255, 0.1);
             border-color: var(--primary);
-            box-shadow: 0 0 0 0.2rem rgba(67, 97, 238, 0.25);
+            box-shadow: 0 0 0 0.2rem rgba(59, 130, 246, 0.25);
+            color: var(--text-primary);
+        }
+        .btn {
+            border-radius: 0.75rem;
+            padding: 0.75rem 1rem;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
         }
         .btn-primary {
             background: var(--primary);
             border: none;
-            border-radius: 12px;
-            padding: 12px;
-            font-weight: 600;
-            font-size: 1.1rem;
-            transition: all 0.2s;
         }
         .btn-primary:hover {
-            background: var(--primary-dark);
-            transform: translateY(-2px);
+            background: var(--primary-hover);
+            transform: translateY(-1px);
         }
-        .task-card {
+        .btn-link {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .btn-link:hover {
+            color: var(--primary-hover);
+        }
+        .form-check-input {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-color: var(--border);
+        }
+        .form-check-input:checked {
+            background-color: var(--primary);
+            border-color: var(--primary);
+        }
+        .alert {
+            border-radius: 0.75rem;
+            border: none;
+            font-size: 0.9rem;
+        }
+        .toggle-link {
+            text-align: center;
+            margin-top: 1.5rem;
+            font-size: 0.95rem;
+        }
+        .loading {
+            display: none;
+            width: 1.2rem;
+            height: 1.2rem;
+            border: 2px solid transparent;
+            border-top: 2px solid currentColor;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .task-item {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            border-radius: 0.75rem;
+            padding: 1rem;
             margin-bottom: 1rem;
-            border-left: 5px solid var(--primary);
-            border-radius: 12px;
-            transition: all 0.2s;
+            transition: all 0.2s ease;
         }
-        .task-card:hover {
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-            transform: translateY(-3px);
+        .task-item:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: var(--primary);
         }
-        .task-title { font-weight: 600; color: var(--dark); }
-        .task-desc { color: #555; font-size: 0.95rem; }
-        .badge-success {
-            background: var(--success);
-            color: white;
+        .task-title {
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+        .task-desc {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.75rem;
+        }
+        .task-meta {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .badge {
+            font-size: 0.75rem;
             padding: 0.35em 0.65em;
             border-radius: 50px;
-            font-size: 0.8rem;
         }
-        .btn-success {
+        .badge-pending {
+            background: var(--warning);
+            color: #000;
+        }
+        .badge-completed {
             background: var(--success);
-            border: none;
-            border-radius: 50px;
-            padding: 0.5rem 1rem;
-            font-size: 0.9rem;
+            color: white;
         }
-        .btn-success:hover { background: #05b589; }
-        .alert { border-radius: 12px; }
-        .logout-btn {
-            border-radius: 50px;
-            padding: 0.5rem 1.2rem;
-            font-size: 0.9rem;
-        }
-        .user-greeting { font-weight: 600; color: var(--primary); }
-        .debug {
-            background: rgba(255, 255, 255, 0.9);
-            border-radius: 12px;
-            padding: 1rem;
-            margin-bottom: 1.5rem;
-            font-size: 0.9rem;
-            color: #d62828;
+        .empty-state {
             text-align: center;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            padding: 3rem 1rem;
+            color: var(--text-secondary);
         }
-        .debug code {
-            background: #f1f3f5;
-            padding: 2px 6px;
-            border-radius: 6px;
-            font-family: 'Courier New', monospace;
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.3;
+        }
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        .toast {
+            position: fixed;
+            bottom: 1rem;
+            right: 1rem;
+            z-index: 1055;
+            min-width: 300px;
+            animation: slideIn 0.3s ease;
+        }
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        .progress {
+            height: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+            overflow: hidden;
+            margin-top: 1rem;
+        }
+        .progress-bar {
+            height: 100%;
+            background: var(--primary);
+            width: 0%;
+            transition: width 0.3s ease;
         }
     </style>
 </head>
 <body>
 
-    <!-- ALERTA DE CONFIGURAÇÃO -->
-    <div class="container">
-        <div class="debug">
-            <strong>CONFIGURAÇÃO OBRIGATÓRIA:</strong><br>
-            <code>const SUPABASE_URL = 'https://SEU_PROJETO.supabase.co';</code><br>
-            <code>const SUPABASE_ANON_KEY = 'SUA_CHAVE_ANON';</code><br>
-            Hospede em <strong>HTTPS</strong> (Vercel, Netlify) e crie as tabelas no Supabase.
-        </div>
-    </div>
-
-    <!-- Login/Cadastro -->
-    <div class="container" id="auth-section">
+    <!-- Login Page -->
+    <div id="login-page" class="auth-container">
         <div class="card">
-            <div class="card-header">Login / Cadastro</div>
+            <div class="card-header">
+                <h1><i class="bi bi-shield-lock"></i> TaskFlow</h1>
+            </div>
             <div class="card-body">
-                <form id="auth-form">
+                <form id="login-form">
                     <div class="mb-3">
-                        <label class="form-label">Nome:</label>
-                        <input type="text" class="form-control" id="name" value="Paulo" required>
+                        <label class="form-label">Nome de usuário</label>
+                        <input type="text" class="form-control" id="login-name" placeholder="Seu nome" required>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Senha:</label>
-                        <input type="password" class="form-control" id="password" value="123" required>
+                        <label class="form-label">Senha</label>
+                        <input type="password" class="form-control" id="login-password" placeholder="••••••••" required>
                     </div>
-                    <button type="submit" class="btn btn-primary w-100">Entrar / Cadastrar</button>
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="remember-me">
+                        <label class="form-check-label" for="remember-me">Lembrar-me</label>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">
+                        <span class="loading"></span>
+                        <span class="btn-text">Entrar</span>
+                    </button>
                 </form>
-                <div id="auth-error" class="alert alert-danger mt-3" style="display: none;"></div>
+                <div id="login-error" class="alert alert-danger mt-3" style="display: none;"></div>
+                <div class="toggle-link">
+                    Não tem conta? <a href="#" id="show-register" class="btn-link">Cadastre-se</a>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- Dashboard -->
-    <div class="container" id="dashboard" style="display: none;">
+    <!-- Register Page -->
+    <div id="register-page" class="auth-container" style="display: none;">
+        <div class="card">
+            <div class="card-header">
+                <h1><i class="bi bi-person-plus"></i> Criar Conta</h1>
+            </div>
+            <div class="card-body">
+                <form id="register-form">
+                    <div class="mb-3">
+                        <label class="form-label">Nome completo</label>
+                        <input type="text" class="form-control" id="register-name" placeholder="Seu nome completo" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Senha</label>
+                        <input type="password" class="form-control" id="register-password" placeholder="Mínimo 6 caracteres" required minlength="6">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Confirme a senha</label>
+                        <input type="password" class="form-control" id="register-confirm" placeholder="Repita a senha" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">
+                        <span class="loading"></span>
+                        <span class="btn-text">Criar Conta</span>
+                    </button>
+                </form>
+                <div id="register-error" class="alert alert-danger mt-3" style="display: none;"></div>
+                <div class="toggle-link">
+                    Já tem conta? <a href="#" id="show-login" class="btn-link">Faça login</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dashboard Page -->
+    <div id="dashboard-page" class="container" style="display: none; max-width: 800px;">
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center">
-                <span class="user-greeting" id="user-greeting"></span>
-                <button id="logout-btn" class="btn btn-outline-light logout-btn">Sair</button>
+                <div class="d-flex align-items-center gap-3">
+                    <div class="user-avatar" id="user-avatar"></div>
+                    <div>
+                        <h2 class="h5 mb-0" id="user-greeting"></h2>
+                        <small class="text-muted">Bem-vindo de volta!</small>
+                    </div>
+                </div>
+                <button id="logout-btn" class="btn btn-outline-light btn-sm">
+                    <i class="bi bi-box-arrow-right"></i> Sair
+                </button>
             </div>
             <div class="card-body">
 
-                <!-- Admin: Criar Tarefa -->
+                <!-- Admin Section -->
                 <div id="admin-section" style="display: none;">
-                    <h5 class="mb-3">Criar Nova Tarefa</h5>
-                    <form id="task-form">
-                        <div class="mb-3">
-                            <label class="form-label">Título:</label>
-                            <input type="text" class="form-control" id="title" required>
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="mb-0">Criar Nova Tarefa</h5>
+                        <button class="btn btn-sm btn-outline-secondary" id="toggle-task-form">
+                            <i class="bi bi-plus-lg"></i>
+                        </button>
+                    </div>
+                    <form id="task-form" style="display: none;">
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <input type="text" class="form-control" id="title" placeholder="Título da tarefa" required>
+                            </div>
+                            <div class="col-12">
+                                <textarea class="form-control" id="description" rows="2" placeholder="Descrição (opcional)"></textarea>
+                            </div>
+                            <div class="col-12">
+                                <select multiple class="form-select" id="assigned-users" size="4" style="height: auto;"></select>
+                                <small class="text-muted">Segure Ctrl (ou Cmd) para selecionar múltiplos</small>
+                            </div>
+                            <div class="col-12">
+                                <button type="submit" class="btn btn-primary w-100">
+                                    <i class="bi bi-check-lg"></i> Criar Tarefa
+                                </button>
+                            </div>
                         </div>
-                        <div class="mb-3">
-                            <label class="form-label">Descrição:</label>
-                            <textarea class="form-control" id="description" rows="3"></textarea>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Atribuir para:</label>
-                            <select multiple class="form-select" id="assigned-users" size="5"></select>
-                        </div>
-                        <button type="submit" class="btn btn-primary w-100">Criar Tarefa</button>
                     </form>
+                    <hr class="my-4">
                 </div>
 
-                <!-- Minhas Tarefas -->
-                <h5 class="mt-4 mb-3">Minhas Tarefas</h5>
+                <!-- Tasks Section -->
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="mb-0">Minhas Tarefas</h5>
+                    <div class="text-muted small" id="task-counter">0 tarefas</div>
+                </div>
                 <div id="tasks-list"></div>
+                <div id="empty-state" class="empty-state" style="display: none;">
+                    <i class="bi bi-inbox"></i>
+                    <p>Nenhuma tarefa pendente</p>
+                </div>
+
+                <!-- Progress Bar -->
+                <div class="progress">
+                    <div class="progress-bar" id="progress-bar" style="width: 0%;"></div>
+                </div>
+                <div class="d-flex justify-content-between mt-2">
+                    <small class="text-muted">Progresso do dia</small>
+                    <small class="text-muted" id="progress-text">0%</small>
+                </div>
             </div>
         </div>
     </div>
+
+    <!-- Toast Notifications -->
+    <div id="toast-container"></div>
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
@@ -203,105 +395,174 @@
       OneSignalDeferred.push(async function(OneSignal) {
         await OneSignal.init({
           appId: "1c4b5984-2a76-4797-8eee-bd1711449681",
-          safari_web_id: "web.onesignal.auto",
-          notifyButton: { enable: false },
           allowLocalhostAsSecureOrigin: true,
+          notifyButton: { enable: false },
         });
       });
     </script>
 
     <script>
-        // === CONFIGURAÇÃO DO SUPABASE (SUBSTITUA AQUI) ===
+        // === CONFIGURAÇÃO DO SUPABASE ===
         const SUPABASE_URL = 'https://djxcvgrunadpkzwpxtom.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRqeGN2Z3J1bmFkcGt6d3B4dG9tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI0NjczOTYsImV4cCI6MjA3ODA0MzM5Nn0.CRTsAj-yIqXJwrx1CGh6dhTjvsgyazHidOseJQwyRpI';
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        const ONESIGNAL_REST_API_KEY = "kw4mb5wfuey5vnfr75hhpbksk";
+        // === EDGE FUNCTION URL (OBRIGATÓRIO) ===
+        const SEND_PUSH_URL = `${SUPABASE_URL}/functions/v1/send-push`;
 
         let currentUser = null;
         let pauloId = null;
         let realtimeSubscription = null;
 
-        document.addEventListener('DOMContentLoaded', () => {
-            document.getElementById('auth-form').addEventListener('submit', handleAuth);
-            document.getElementById('task-form')?.addEventListener('submit', handleCreateTask);
-            document.getElementById('logout-btn')?.addEventListener('click', logout);
+        // === UI Elements ===
+        const loginPage = document.getElementById('login-page');
+        const registerPage = document.getElementById('register-page');
+        const dashboardPage = document.getElementById('dashboard-page');
+        const showRegister = document.getElementById('show-register');
+        const showLogin = document.getElementById('show-login');
 
-            // Teste de conexão
-            testConnection();
+        // === Navigation ===
+        showRegister.addEventListener('click', (e) => {
+            e.preventDefault();
+            loginPage.style.display = 'none';
+            registerPage.style.display = 'block';
         });
 
-        async function testConnection() {
-            try {
-                await supabase.from('users').select('id').limit(1);
-                console.log('Supabase conectado!');
-            } catch (err) {
-                showError('Supabase offline. Verifique URL e chave.');
-            }
-        }
-
-        async function setOneSignalUser(userId) {
-            OneSignalDeferred.push(async function(OneSignal) {
-                await OneSignal.login(userId.toString());
-            });
-        }
-
-        async function sendPush(title, message, userIds) {
-            const res = await fetch('https://onesignal.com/api/v1/notifications', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Basic ${ONESIGNAL_REST_API_KEY}`
-                },
-                body: JSON.stringify({
-                    app_id: "1c4b5984-2a76-4797-8eee-bd1711449681",
-                    include_external_user_ids: userIds,
-                    headings: { "pt": title },
-                    contents: { "pt": message },
-                    chrome_web_icon: "https://i.imgur.com/7r7q6wT.png"
-                })
-            });
-            if (!res.ok) console.error('Push falhou:', await res.text());
-        }
-
-        async function handleAuth(e) {
+        showLogin.addEventListener('click', (e) => {
             e.preventDefault();
-            const name = document.getElementById('name').value.trim();
-            const password = document.getElementById('password').value;
+            registerPage.style.display = 'none';
+            loginPage.style.display = 'block';
+        });
 
-            let { data: user, error } = await supabase.from('users').select('*').eq('name', name).single();
+        // === Toast Notification ===
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = `toast align-items-center text-bg-${type} border-0`;
+            toast.innerHTML = `
+                <div class="d-flex">
+                    <div class="toast-body">${message}</div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+                </div>
+            `;
+            document.getElementById('toast-container').appendChild(toast);
+            new bootstrap.Toast(toast, { delay: 4000 }).show();
+            setTimeout(() => toast.remove(), 5000);
+        }
 
-            if (error && error.code !== 'PGRST116') {
-                showError('Erro: ' + error.message);
-                return;
-            }
-
-            if (user) {
-                if (user.password !== password) {
-                    showError('Senha incorreta.');
-                    return;
-                }
-                currentUser = user;
+        // === Loading State ===
+        function setLoading(button, loading) {
+            const loadingEl = button.querySelector('.loading');
+            const textEl = button.querySelector('.btn-text');
+            if (loading) {
+                loadingEl.style.display = 'inline-block';
+                textEl.style.opacity = '0.7';
+                button.disabled = true;
             } else {
+                loadingEl.style.display = 'none';
+                textEl.style.opacity = '1';
+                button.disabled = false;
+            }
+        }
+
+        // === SEND PUSH VIA EDGE FUNCTION (100% FUNCIONAL) ===
+        async function sendPushViaEdge(title, message, userIds) {
+            try {
+                const response = await fetch(SEND_PUSH_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ title, message, userIds })
+                });
+
+                if (!response.ok) {
+                    const error = await response.text();
+                    console.error('Erro no push:', error);
+                    return false;
+                }
+                return true;
+            } catch (err) {
+                console.error('Falha no fetch:', err);
+                return false;
+            }
+        }
+
+        // === Login ===
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const button = e.target.querySelector('button');
+            setLoading(button, true);
+            const name = document.getElementById('login-name').value.trim();
+            const password = document.getElementById('login-password').value;
+
+            try {
+                let { data: user, error } = await supabase
+                    .from('users')
+                    .select('*')
+                    .eq('name', name)
+                    .single();
+
+                if (error && error.code !== 'PGRST116') throw error;
+                if (!user) throw new Error('Usuário não encontrado');
+                if (user.password !== password) throw new Error('Senha incorreta');
+
+                currentUser = user;
+                await loginSuccess();
+            } catch (err) {
+                document.getElementById('login-error').textContent = err.message;
+                document.getElementById('login-error').style.display = 'block';
+            } finally {
+                setLoading(button, false);
+            }
+        });
+
+        // === Register ===
+        document.getElementById('register-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const button = e.target.querySelector('button');
+            setLoading(button, true);
+            const name = document.getElementById('register-name').value.trim();
+            const password = document.getElementById('register-password').value;
+            const confirm = document.getElementById('register-confirm').value;
+
+            try {
+                if (password !== confirm) throw new Error('As senhas não coincidem');
+                if (password.length < 6) throw new Error('A senha deve ter pelo menos 6 caracteres');
+
                 const isAdmin = name.toLowerCase() === 'paulo';
-                const { data: newUser, error: insertError } = await supabase
+                const { data: newUser, error } = await supabase
                     .from('users')
                     .insert({ name, password, is_admin: isAdmin })
                     .select()
                     .single();
-                if (insertError) {
-                    showError('Erro ao cadastrar: ' + insertError.message);
-                    return;
-                }
+
+                if (error) throw error;
+
                 currentUser = newUser;
                 if (isAdmin) pauloId = newUser.id;
+                await loginSuccess();
+                showToast('Conta criada com sucesso!', 'success');
+            } catch (err) {
+                document.getElementById('register-error').textContent = err.message;
+                document.getElementById('register-error').style.display = 'block';
+            } finally {
+                setLoading(button, false);
             }
+        });
 
-            setOneSignalUser(currentUser.id);
+        // === Login Success ===
+        async function loginSuccess() {
+            OneSignalDeferred.push(async (OneSignal) => {
+                await OneSignal.login(currentUser.id.toString());
+            });
 
-            document.getElementById('auth-section').style.display = 'none';
-            document.getElementById('dashboard').style.display = 'block';
-            document.getElementById('user-greeting').textContent = `Olá, ${currentUser.name}!`;
+            document.getElementById('user-avatar').textContent = currentUser.name.charAt(0).toUpperCase();
+            document.getElementById('user-greeting').textContent = currentUser.name;
+
+            loginPage.style.display = 'none';
+            registerPage.style.display = 'none';
+            dashboardPage.style.display = 'block';
 
             if (currentUser.is_admin) {
                 document.getElementById('admin-section').style.display = 'block';
@@ -313,13 +574,7 @@
             setupRealtime();
         }
 
-        function showError(msg) {
-            const el = document.getElementById('auth-error');
-            el.textContent = msg;
-            el.style.display = 'block';
-            setTimeout(() => el.style.display = 'none', 6000);
-        }
-
+        // === Load Users for Assignment ===
         async function loadUsersForAssignment() {
             const { data: users } = await supabase.from('users').select('id, name').neq('id', currentUser.id);
             const select = document.getElementById('assigned-users');
@@ -332,13 +587,17 @@
             });
         }
 
-        async function handleCreateTask(e) {
+        // === Create Task ===
+        document.getElementById('task-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             const title = document.getElementById('title').value.trim();
             const description = document.getElementById('description').value.trim();
             const assignedIds = Array.from(document.getElementById('assigned-users').selectedOptions).map(o => o.value);
 
-            if (!title || assignedIds.length === 0) return alert('Preencha tudo!');
+            if (!title || assignedIds.length === 0) {
+                showToast('Preencha título e selecione usuários', 'danger');
+                return;
+            }
 
             const { data: task, error } = await supabase
                 .from('tasks')
@@ -346,13 +605,25 @@
                 .select()
                 .single();
 
-            if (error) return alert('Erro: ' + error.message);
+            if (error) {
+                showToast('Erro ao criar tarefa', 'danger');
+            } else {
+                document.getElementById('task-form').reset();
+                document.getElementById('task-form').style.display = 'none';
+                showToast('Tarefa criada com sucesso!', 'success');
+                loadTasks();
 
-            document.getElementById('task-form').reset();
-            alert('Tarefa criada com sucesso!');
-            sendPush(`Nova Tarefa: ${title}`, description || 'Você tem uma nova tarefa.', assignedIds);
-        }
+                // Envia push via Edge Function
+                const success = await sendPushViaEdge(
+                    `Nova Tarefa: ${title}`,
+                    description || 'Você tem uma nova tarefa.',
+                    assignedIds
+                );
+                if (success) showToast('Notificação enviada!', 'success');
+            }
+        });
 
+        // === Load Tasks ===
         async function loadTasks() {
             const { data: tasks } = await supabase
                 .from('tasks')
@@ -361,52 +632,98 @@
                 .order('created_at', { ascending: false });
 
             const list = document.getElementById('tasks-list');
+            const empty = document.getElementById('empty-state');
             list.innerHTML = '';
-            tasks.forEach(task => list.appendChild(createTaskCard(task)));
+
+            if (tasks.length === 0) {
+                empty.style.display = 'block';
+                document.getElementById('task-counter').textContent = '0 tarefas';
+                updateProgress(0, 0);
+                return;
+            }
+
+            empty.style.display = 'none';
+            const completed = tasks.filter(t => t.status === 'completed').length;
+            document.getElementById('task-counter').textContent = `${tasks.length} tarefa${tasks.length > 1 ? 's' : ''}`;
+            updateProgress(completed, tasks.length);
+
+            tasks.forEach(task => {
+                const item = document.createElement('div');
+                item.className = 'task-item';
+                item.innerHTML = `
+                    <div class="task-title">${task.title}</div>
+                    ${task.description ? `<div class="task-desc">${task.description}</div>` : ''}
+                    <div class="task-meta">
+                        <small>Criada em ${new Date(task.created_at).toLocaleDateString('pt-BR')}</small>
+                        ${task.status === 'pending' ? 
+                            `<button class="btn btn-success btn-sm" onclick="markCompleted('${task.id}')">
+                                <i class="bi bi-check-lg"></i> Concluir
+                            </button>` :
+                            `<span class="badge badge-completed">Concluída</span>`
+                        }
+                    </div>
+                `;
+                list.appendChild(item);
+            });
         }
 
-        function createTaskCard(task) {
-            const div = document.createElement('div');
-            div.className = 'card task-card';
-            div.innerHTML = `
-                <div class="card-body">
-                    <h6 class="task-title">${task.title}</h6>
-                    <p class="task-desc">${task.description || '<em>Sem descrição</em>'}</p>
-                    <p class="small text-muted mb-2">Criada: ${new Date(task.created_at).toLocaleString('pt-BR')}</p>
-                    ${task.status === 'pending' ? `
-                        <button class="btn btn-success btn-sm" onclick="markCompleted('${task.id}')">Concluir</button>
-                    ` : `
-                        <span class="badge-success">Concluída</span>
-                    `}
-                </div>
-            `;
-            return div;
+        function updateProgress(completed, total) {
+            const percent = total > 0 ? Math.round((completed / total) * 100) : 0;
+            document.getElementById('progress-bar').style.width = `${percent}%`;
+            document.getElementById('progress-text').textContent = `${percent}%`;
         }
 
+        // === Mark Completed ===
         window.markCompleted = async function(taskId) {
             const { data: task } = await supabase.from('tasks').select('*').eq('id', taskId).single();
-            await supabase.from('tasks').update({ status: 'completed', completed_at: new Date().toISOString() }).eq('id', taskId);
+            await supabase.from('tasks').update({ 
+                status: 'completed', 
+                completed_at: new Date().toISOString() 
+            }).eq('id', taskId);
             loadTasks();
+
             if (task.created_by === pauloId) {
-                sendPush(`Tarefa Concluída: ${task.title}`, `${currentUser.name} concluiu a tarefa.`, [pauloId.toString()]);
+                const success = await sendPushViaEdge(
+                    `Tarefa Concluída: ${task.title}`,
+                    `${currentUser.name} concluiu a tarefa.`,
+                    [pauloId.toString()]
+                );
+                if (success) showToast('Notificação enviada ao criador!', 'success');
             }
         }
 
+        // === Realtime ===
         function setupRealtime() {
             if (realtimeSubscription) realtimeSubscription.unsubscribe();
             realtimeSubscription = supabase.channel('tasks')
-                .on('postgres_changes', { event: '*', schema: 'public', table: 'tasks' }, () => loadTasks())
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'tasks' }, () => {
+                    if (currentUser) loadTasks();
+                })
                 .subscribe();
         }
 
-        function logout() {
-            OneSignalDeferred.push(async function(OneSignal) { await OneSignal.logout(); });
+        // === Toggle Task Form ===
+        document.getElementById('toggle-task-form').addEventListener('click', () => {
+            const form = document.getElementById('task-form');
+            form.style.display = form.style.display === 'none' ? 'block' : 'none';
+        });
+
+        // === Logout ===
+        document.getElementById('logout-btn').addEventListener('click', () => {
+            OneSignalDeferred.push(async (OneSignal) => { await OneSignal.logout(); });
             currentUser = null; pauloId = null;
             if (realtimeSubscription) realtimeSubscription.unsubscribe();
-            document.getElementById('dashboard').style.display = 'none';
-            document.getElementById('auth-section').style.display = 'block';
-            document.getElementById('auth-form').reset();
-        }
+            dashboardPage.style.display = 'none';
+            loginPage.style.display = 'block';
+            document.getElementById('login-form').reset();
+            showToast('Logout realizado com sucesso', 'info');
+        });
+
+        // === Init ===
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('login-name').value = 'Paulo';
+            document.getElementById('login-password').value = '123';
+        });
     </script>
 </body>
 </html>
