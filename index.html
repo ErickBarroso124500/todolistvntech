@@ -546,18 +546,23 @@
             </div>
 
             <div class="main-grid">
-                <!-- Criar Tarefa (apenas para admin) -->
-                <div id="createTaskCard" class="card" style="display: none;">
+                <!-- Criar Tarefa (admin e usuários) -->
+                <div id="createTaskCard" class="card">
                     <div class="card-header">
                         <h2><i class="fas fa-plus-circle"></i> Nova Tarefa</h2>
                     </div>
                     <form class="task-form" onsubmit="createTask(event)">
                         <input type="text" class="task-input" id="taskTitle" placeholder="Título da tarefa" required>
                         <textarea class="task-input" id="taskDescription" placeholder="Descrição detalhada da tarefa"></textarea>
-                        <div>
+                        <input type="date" class="task-input" id="taskDueDate" placeholder="Data de vencimento">
+                        <div id="adminUserSelect" style="display: none;">
                             <label style="margin-bottom: 10px; display: block; font-weight: 600;">Atribuir para:</label>
                             <div class="user-select" id="userSelect"></div>
                         </div>
+                        <label style="display: flex; align-items: center; gap: 8px; padding: 12px; background: var(--light); border-radius: 8px; cursor: pointer;">
+                            <input type="checkbox" id="taskForMyself" checked onchange="toggleAssignmentMode()">
+                            <span style="font-weight: 500;">Criar tarefa para mim mesmo</span>
+                        </label>
                         <button type="submit" class="btn btn-primary">
                             <i class="fas fa-paper-plane"></i> Criar Tarefa
                         </button>
