@@ -12,7 +12,6 @@
             padding: 0;
             box-sizing: border-box;
         }
-
         :root {
             --primary: #4F46E5;
             --primary-dark: #4338CA;
@@ -27,20 +26,17 @@
             --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
             --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
         }
-
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             color: var(--text);
         }
-
         .container {
             max-width: 1400px;
             margin: 0 auto;
             padding: 20px;
         }
-
         /* Login/Cadastro */
         .auth-container {
             display: flex;
@@ -48,7 +44,6 @@
             align-items: center;
             min-height: 100vh;
         }
-
         .auth-card {
             background: white;
             padding: 40px;
@@ -58,7 +53,6 @@
             max-width: 420px;
             animation: slideUp 0.3s ease-out;
         }
-
         @keyframes slideUp {
             from {
                 opacity: 0;
@@ -69,12 +63,10 @@
                 transform: translateY(0);
             }
         }
-
         .auth-header {
             text-align: center;
             margin-bottom: 30px;
         }
-
         .auth-header h1 {
             color: var(--primary);
             font-size: 28px;
@@ -84,16 +76,13 @@
             justify-content: center;
             gap: 10px;
         }
-
         .auth-header p {
             color: var(--text-light);
             font-size: 14px;
         }
-
         .form-group {
             margin-bottom: 20px;
         }
-
         .form-group label {
             display: block;
             margin-bottom: 8px;
@@ -101,7 +90,6 @@
             color: var(--text);
             font-size: 14px;
         }
-
         .form-group input {
             width: 100%;
             padding: 12px 16px;
@@ -110,13 +98,11 @@
             font-size: 14px;
             transition: all 0.2s;
         }
-
         .form-group input:focus {
             outline: none;
             border-color: var(--primary);
             box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
         }
-
         .btn {
             width: 100%;
             padding: 12px 24px;
@@ -131,37 +117,30 @@
             justify-content: center;
             gap: 8px;
         }
-
         .btn-primary {
             background: var(--primary);
             color: white;
         }
-
         .btn-primary:hover {
             background: var(--primary-dark);
             transform: translateY(-1px);
             box-shadow: var(--shadow);
         }
-
         .btn-secondary {
             background: var(--light);
             color: var(--text);
             margin-top: 10px;
         }
-
         .btn-secondary:hover {
             background: var(--border);
         }
-
         /* Dashboard */
         .dashboard {
             display: none;
         }
-
         .dashboard.active {
             display: block;
         }
-
         .header {
             background: white;
             padding: 20px 30px;
@@ -172,24 +151,20 @@
             justify-content: space-between;
             align-items: center;
         }
-
         .header-left h1 {
             font-size: 24px;
             color: var(--dark);
             margin-bottom: 4px;
         }
-
         .header-left p {
             color: var(--text-light);
             font-size: 14px;
         }
-
         .header-right {
             display: flex;
             gap: 15px;
             align-items: center;
         }
-
         .user-badge {
             background: var(--primary);
             color: white;
@@ -201,11 +176,9 @@
             align-items: center;
             gap: 8px;
         }
-
         .admin-badge {
             background: var(--warning);
         }
-
         .btn-logout {
             background: var(--danger);
             color: white;
@@ -217,30 +190,25 @@
             font-weight: 600;
             transition: all 0.2s;
         }
-
         .btn-logout:hover {
             background: #DC2626;
         }
-
         .main-grid {
             display: grid;
             grid-template-columns: 1fr 2fr;
             gap: 30px;
         }
-
         @media (max-width: 1024px) {
             .main-grid {
                 grid-template-columns: 1fr;
             }
         }
-
         .card {
             background: white;
             padding: 25px;
             border-radius: 16px;
             box-shadow: var(--shadow);
         }
-
         .card-header {
             display: flex;
             justify-content: space-between;
@@ -249,7 +217,6 @@
             padding-bottom: 15px;
             border-bottom: 2px solid var(--light);
         }
-
         .card-header h2 {
             font-size: 18px;
             color: var(--dark);
@@ -257,13 +224,11 @@
             align-items: center;
             gap: 10px;
         }
-
         .task-form {
             display: flex;
             flex-direction: column;
             gap: 15px;
         }
-
         .task-input {
             padding: 12px 16px;
             border: 2px solid var(--border);
@@ -271,18 +236,15 @@
             font-size: 14px;
             transition: all 0.2s;
         }
-
         .task-input:focus {
             outline: none;
             border-color: var(--primary);
         }
-
         textarea.task-input {
             resize: vertical;
             min-height: 100px;
             font-family: inherit;
         }
-
         .user-select {
             display: flex;
             flex-wrap: wrap;
@@ -291,7 +253,6 @@
             background: var(--light);
             border-radius: 8px;
         }
-
         .user-checkbox {
             display: flex;
             align-items: center;
@@ -303,21 +264,17 @@
             cursor: pointer;
             transition: all 0.2s;
         }
-
         .user-checkbox:hover {
             border-color: var(--primary);
         }
-
         .user-checkbox input[type="checkbox"] {
             cursor: pointer;
         }
-
         .user-checkbox.selected {
             background: var(--primary);
             color: white;
             border-color: var(--primary);
         }
-
         .tasks-list {
             display: flex;
             flex-direction: column;
@@ -325,7 +282,6 @@
             max-height: 600px;
             overflow-y: auto;
         }
-
         .task-item {
             padding: 20px;
             background: var(--light);
@@ -334,71 +290,59 @@
             transition: all 0.2s;
             cursor: pointer;
         }
-
         .task-item:hover {
             transform: translateX(4px);
             box-shadow: var(--shadow);
         }
-
         .task-item.completed {
             opacity: 0.6;
             border-left-color: var(--secondary);
         }
-
         .task-item.completed .task-title {
             text-decoration: line-through;
         }
-
         .task-header {
             display: flex;
             justify-content: space-between;
             align-items: start;
             margin-bottom: 10px;
         }
-
         .task-title {
             font-weight: 600;
             color: var(--dark);
             font-size: 16px;
         }
-
         .task-status {
             padding: 4px 12px;
             border-radius: 12px;
             font-size: 12px;
             font-weight: 600;
         }
-
         .status-pending {
             background: #FEF3C7;
             color: #92400E;
         }
-
         .status-completed {
             background: #D1FAE5;
             color: #065F46;
         }
-
         .task-description {
             color: var(--text-light);
             font-size: 14px;
             margin-bottom: 12px;
             line-height: 1.5;
         }
-
         .task-meta {
             display: flex;
             gap: 15px;
             font-size: 12px;
             color: var(--text-light);
         }
-
         .task-meta span {
             display: flex;
             align-items: center;
             gap: 5px;
         }
-
         .notification {
             position: fixed;
             top: 20px;
@@ -412,7 +356,6 @@
             z-index: 1000;
             border-left: 4px solid var(--primary);
         }
-
         @keyframes slideIn {
             from {
                 opacity: 0;
@@ -423,14 +366,12 @@
                 transform: translateX(0);
             }
         }
-
         .notification-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 10px;
         }
-
         .notification-title {
             font-weight: 600;
             color: var(--dark);
@@ -438,7 +379,6 @@
             align-items: center;
             gap: 8px;
         }
-
         .notification-close {
             background: none;
             border: none;
@@ -446,30 +386,25 @@
             color: var(--text-light);
             font-size: 18px;
         }
-
         .notification-body {
             color: var(--text);
             font-size: 14px;
         }
-
         .empty-state {
             text-align: center;
             padding: 40px;
             color: var(--text-light);
         }
-
         .empty-state i {
             font-size: 48px;
             margin-bottom: 15px;
             opacity: 0.3;
         }
-
         .tabs {
             display: flex;
             gap: 10px;
             margin-bottom: 20px;
         }
-
         .tab {
             padding: 10px 20px;
             background: var(--light);
@@ -480,12 +415,10 @@
             color: var(--text);
             transition: all 0.2s;
         }
-
         .tab.active {
             background: var(--primary);
             color: white;
         }
-
         .loading {
             display: inline-block;
             width: 20px;
@@ -495,7 +428,6 @@
             border-top-color: white;
             animation: spin 1s ease-in-out infinite;
         }
-
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
@@ -506,7 +438,7 @@
     <div id="authScreen" class="auth-container">
         <div class="auth-card">
             <div class="auth-header">
-                <h1><i class="fas fa-tasks"></i> TaskFlow</h1>
+                <h1>TaskFlow</h1>
                 <p>Sistema Profissional de Gerenciamento de Tarefas</p>
             </div>
             <div class="form-group">
@@ -518,38 +450,35 @@
                 <input type="password" id="password" placeholder="Digite sua senha">
             </div>
             <button class="btn btn-primary" onclick="handleLogin()">
-                <i class="fas fa-sign-in-alt"></i> Entrar
+                Entrar
             </button>
             <button class="btn btn-secondary" onclick="handleRegister()">
-                <i class="fas fa-user-plus"></i> Criar Conta
+                Criar Conta
             </button>
         </div>
     </div>
-
     <!-- Dashboard -->
     <div id="dashboard" class="dashboard">
         <div class="container">
             <div class="header">
                 <div class="header-left">
-                    <h1><i class="fas fa-tasks"></i> TaskFlow</h1>
+                    <h1>TaskFlow</h1>
                     <p>Gerencie suas tarefas com eficiência</p>
                 </div>
                 <div class="header-right">
                     <span class="user-badge" id="userBadge">
-                        <i class="fas fa-user"></i>
                         <span id="userName"></span>
                     </span>
                     <button class="btn-logout" onclick="handleLogout()">
-                        <i class="fas fa-sign-out-alt"></i> Sair
+                        Sair
                     </button>
                 </div>
             </div>
-
             <div class="main-grid">
                 <!-- Criar Tarefa (admin e usuários) -->
                 <div id="createTaskCard" class="card">
                     <div class="card-header">
-                        <h2><i class="fas fa-plus-circle"></i> Nova Tarefa</h2>
+                        <h2>Nova Tarefa</h2>
                     </div>
                     <form class="task-form" onsubmit="createTask(event)">
                         <input type="text" class="task-input" id="taskTitle" placeholder="Título da tarefa" required>
@@ -564,25 +493,24 @@
                             <span style="font-weight: 500;">Criar tarefa para mim mesmo</span>
                         </label>
                         <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-paper-plane"></i> Criar Tarefa
+                            Criar Tarefa
                         </button>
                     </form>
                 </div>
-
                 <!-- Lista de Tarefas -->
                 <div class="card">
                     <div class="card-header">
-                        <h2><i class="fas fa-list-check"></i> Minhas Tarefas</h2>
+                        <h2>Minhas Tarefas</h2>
                     </div>
                     <div class="tabs">
                         <button class="tab active" onclick="filterTasks('pending')">
-                            <i class="fas fa-clock"></i> Pendentes
+                            Pendentes
                         </button>
                         <button class="tab" onclick="filterTasks('completed')">
-                            <i class="fas fa-check-circle"></i> Concluídas
+                            Concluídas
                         </button>
                         <button class="tab" onclick="filterTasks('all')">
-                            <i class="fas fa-list"></i> Todas
+                            Todas
                         </button>
                     </div>
                     <div class="tasks-list" id="tasksList"></div>
@@ -590,35 +518,29 @@
             </div>
         </div>
     </div>
-
     <script>
         // CONFIGURAÇÃO DO SUPABASE
         const SUPABASE_URL = 'https://djxcvgrunadpkzwpxtom.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRqeGN2Z3J1bmFkcGt6d3B4dG9tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI0NjczOTYsImV4cCI6MjA3ODA0MzM5Nn0.CRTsAj-yIqXJwrx1CGh6dhTjvsgyazHidOseJQwyRpI';
-        
+       
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
         let currentUser = null;
         let currentFilter = 'pending';
         let notificationTimeout = null;
-
         // Verificar se já está logado
         const savedUser = localStorage.getItem('currentUser');
         if (savedUser) {
             currentUser = JSON.parse(savedUser);
             showDashboard();
         }
-
         // FUNÇÕES DE AUTENTICAÇÃO
         async function handleLogin() {
             const username = document.getElementById('username').value.trim();
             const password = document.getElementById('password').value;
-
             if (!username || !password) {
                 showNotification('Erro', 'Por favor, preencha todos os campos');
                 return;
             }
-
             // Se for Paulo, sempre admin
             if (username.toLowerCase() === 'paulo') {
                 const { data, error } = await supabase
@@ -626,12 +548,10 @@
                     .select('*')
                     .eq('username', username)
                     .single();
-
                 if (error || !data) {
                     showNotification('Erro', 'Usuário não encontrado. Por favor, crie uma conta.');
                     return;
                 }
-
                 currentUser = {
                     id: data.id,
                     username: data.username,
@@ -644,31 +564,24 @@
                     .eq('username', username)
                     .eq('password', password)
                     .single();
-
                 if (error || !data) {
                     showNotification('Erro', 'Usuário ou senha incorretos');
                     return;
                 }
-
                 currentUser = data;
             }
-
             localStorage.setItem('currentUser', JSON.stringify(currentUser));
             showDashboard();
             showNotification('Bem-vindo!', `Olá, ${currentUser.username}!`);
         }
-
         async function handleRegister() {
             const username = document.getElementById('username').value.trim();
             const password = document.getElementById('password').value;
-
             if (!username || !password) {
                 showNotification('Erro', 'Por favor, preencha todos os campos');
                 return;
             }
-
             const isAdmin = username.toLowerCase() === 'paulo';
-
             const { data, error } = await supabase
                 .from('users')
                 .insert([
@@ -676,7 +589,6 @@
                 ])
                 .select()
                 .single();
-
             if (error) {
                 if (error.code === '23505') {
                     showNotification('Erro', 'Este usuário já existe');
@@ -685,10 +597,8 @@
                 }
                 return;
             }
-
             showNotification('Sucesso!', 'Conta criada! Faça login agora.');
         }
-
         function handleLogout() {
             localStorage.removeItem('currentUser');
             currentUser = null;
@@ -696,36 +606,32 @@
             document.getElementById('authScreen').style.display = 'flex';
             showNotification('Até logo!', 'Você saiu com sucesso');
         }
-
         // FUNÇÕES DO DASHBOARD
         async function showDashboard() {
             document.getElementById('authScreen').style.display = 'none';
             document.getElementById('dashboard').classList.add('active');
             document.getElementById('userName').textContent = currentUser.username;
-
             const userBadge = document.getElementById('userBadge');
             if (currentUser.is_admin) {
                 userBadge.classList.add('admin-badge');
-                userBadge.innerHTML = `<i class="fas fa-crown"></i> ${currentUser.username} (Admin)`;
+                userBadge.innerHTML = `${currentUser.username} (Admin)`;
                 document.getElementById('createTaskCard').style.display = 'block';
                 await loadUsers();
+                // Inicializa o modo de atribuição
+                toggleAssignmentMode();
             }
-
             await loadTasks();
             subscribeToChanges();
         }
-
         async function loadUsers() {
             const { data, error } = await supabase
                 .from('users')
                 .select('*')
                 .eq('is_admin', false);
-
             if (error) {
                 console.error('Erro ao carregar usuários:', error);
                 return;
             }
-
             const userSelect = document.getElementById('userSelect');
             userSelect.innerHTML = data.map(user => `
                 <label class="user-checkbox">
@@ -734,20 +640,42 @@
                 </label>
             `).join('');
         }
-
         function toggleUserSelect(checkbox) {
             checkbox.parentElement.classList.toggle('selected', checkbox.checked);
         }
 
+        // NOVA FUNÇÃO: Alterna entre "para mim mesmo" e "atribuir a outros"
+        function toggleAssignmentMode() {
+            const forMyself = document.getElementById('taskForMyself').checked;
+            const adminUserSelect = document.getElementById('adminUserSelect');
+            const userCheckboxes = document.querySelectorAll('#userSelect input[type="checkbox"]');
+
+            if (forMyself) {
+                adminUserSelect.style.display = 'none';
+                userCheckboxes.forEach(cb => {
+                    cb.checked = false;
+                    cb.parentElement.classList.remove('selected');
+                });
+            } else {
+                adminUserSelect.style.display = 'block';
+            }
+        }
+
         async function createTask(event) {
             event.preventDefault();
-
             const title = document.getElementById('taskTitle').value;
             const description = document.getElementById('taskDescription').value;
-            const selectedUsers = Array.from(document.querySelectorAll('#userSelect input:checked'))
-                .map(cb => cb.value);
 
-            if (selectedUsers.length === 0) {
+            let finalUsers = [];
+
+            if (document.getElementById('taskForMyself').checked) {
+                finalUsers = [currentUser.id]; // Tarefa para o próprio admin
+            } else {
+                finalUsers = Array.from(document.querySelectorAll('#userSelect input:checked'))
+                    .map(cb => cb.value);
+            }
+
+            if (finalUsers.length === 0) {
                 showNotification('Atenção', 'Selecione pelo menos um usuário');
                 return;
             }
@@ -756,7 +684,7 @@
             btn.innerHTML = '<span class="loading"></span> Criando...';
             btn.disabled = true;
 
-            const tasks = selectedUsers.map(userId => ({
+            const tasks = finalUsers.map(userId => ({
                 title,
                 description,
                 assigned_to: userId,
@@ -774,30 +702,13 @@
                 showNotification('Sucesso!', 'Tarefa criada e enviada!');
                 document.getElementById('taskTitle').value = '';
                 document.getElementById('taskDescription').value = '';
-                document.querySelectorAll('#userSelect input:checked').forEach(cb => {
-                    cb.checked = false;
-                    cb.parentElement.classList.remove('selected');
-                });
+                document.getElementById('taskForMyself').checked = true;
+                toggleAssignmentMode(); // Reseta visualmente
             }
-
-            btn.innerHTML = '<i class="fas fa-paper-plane"></i> Criar Tarefa';
+            btn.innerHTML = 'Criar Tarefa';
             btn.disabled = false;
         }
-
         async function loadTasks() {
-            let query = supabase
-                .from('tasks')
-                .select(`
-                    *,
-                    assigned_user:assigned_to(username),
-                    creator:created_by(username)
-                `)
-                .order('created_at', { ascending: false });
-
-            if (!currentUser.is_admin) {
-                query = query.eq('assigned_to', currentUser.id);
-            }
-
             const { data, error } = await supabase
                 .from('tasks')
                 .select(`
@@ -807,34 +718,27 @@
                 `)
                 .or(`assigned_to.eq.${currentUser.id},created_by.eq.${currentUser.id}`)
                 .order('created_at', { ascending: false });
-
             if (error) {
                 console.error('Erro ao carregar tarefas:', error);
                 return;
             }
-
             displayTasks(data);
         }
-
         function displayTasks(tasks) {
             const filtered = tasks.filter(task => {
                 if (currentFilter === 'pending') return !task.completed;
                 if (currentFilter === 'completed') return task.completed;
                 return true;
             });
-
             const tasksList = document.getElementById('tasksList');
-
             if (filtered.length === 0) {
                 tasksList.innerHTML = `
                     <div class="empty-state">
-                        <i class="fas fa-inbox"></i>
                         <p>Nenhuma tarefa encontrada</p>
                     </div>
                 `;
                 return;
             }
-
             tasksList.innerHTML = filtered.map(task => `
                 <div class="task-item ${task.completed ? 'completed' : ''}" onclick="toggleTaskCompletion('${task.id}', ${task.completed})">
                     <div class="task-header">
@@ -845,17 +749,15 @@
                     </div>
                     ${task.description ? `<div class="task-description">${task.description}</div>` : ''}
                     <div class="task-meta">
-                        <span><i class="fas fa-user"></i> ${task.assigned_user?.username || 'N/A'}</span>
-                        <span><i class="fas fa-user-tie"></i> Criado por: ${task.creator?.username || 'N/A'}</span>
-                        <span><i class="fas fa-calendar"></i> ${new Date(task.created_at).toLocaleDateString('pt-BR')}</span>
+                        <span>${task.assigned_user?.username || 'N/A'}</span>
+                        <span>Criado por: ${task.creator?.username || 'N/A'}</span>
+                        <span>${new Date(task.created_at).toLocaleDateString('pt-BR')}</span>
                     </div>
                 </div>
             `).join('');
         }
-
         async function toggleTaskCompletion(taskId, isCompleted) {
             if (isCompleted) return;
-
             const { data, error } = await supabase
                 .from('tasks')
                 .update({ completed: true })
@@ -866,14 +768,12 @@
                     creator:users!tasks_created_by_fkey(username, id)
                 `)
                 .single();
-
             if (error) {
                 showNotification('Erro', 'Erro ao atualizar tarefa');
                 return;
             }
-
             showNotification('Concluída!', 'Tarefa marcada como concluída');
-            
+           
             // Notificar Paulo se não for ele que completou
             if (currentUser.id !== data.creator.id) {
                 await supabase
@@ -884,45 +784,41 @@
                         task_id: taskId
                     });
             }
-
             loadTasks();
         }
-
         function filterTasks(filter) {
             currentFilter = filter;
             document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
             event.target.classList.add('active');
             loadTasks();
         }
-
         // NOTIFICAÇÕES EM TEMPO REAL
         function subscribeToChanges() {
             // Monitorar novas tarefas atribuídas
             supabase
                 .channel('tasks')
-                .on('postgres_changes', 
-                    { 
-                        event: 'INSERT', 
-                        schema: 'public', 
+                .on('postgres_changes',
+                    {
+                        event: 'INSERT',
+                        schema: 'public',
                         table: 'tasks',
                         filter: `assigned_to=eq.${currentUser.id}`
-                    }, 
+                    },
                     async (payload) => {
                         const { data } = await supabase
                             .from('users')
                             .select('username')
                             .eq('id', payload.new.created_by)
                             .single();
-                        
+                       
                         showNotification(
-                            '🔔 Nova Tarefa!',
+                            'Nova Tarefa!',
                             `${data?.username || 'Alguém'} atribuiu uma nova tarefa para você: "${payload.new.title}"`
                         );
                         loadTasks();
                     }
                 )
                 .subscribe();
-
             // Monitorar notificações
             supabase
                 .channel('notifications')
@@ -934,8 +830,8 @@
                         filter: `user_id=eq.${currentUser.id}`
                     },
                     (payload) => {
-                        showNotification('🎉 Atualização', payload.new.message);
-                        
+                        showNotification('Atualização', payload.new.message);
+                       
                         // Marcar notificação como lida
                         supabase
                             .from('notifications')
@@ -946,31 +842,26 @@
                 )
                 .subscribe();
         }
-
         function showNotification(title, message) {
             if (notificationTimeout) {
                 clearTimeout(notificationTimeout);
             }
-
             const existing = document.querySelector('.notification');
             if (existing) {
                 existing.remove();
             }
-
             const notification = document.createElement('div');
             notification.className = 'notification';
             notification.innerHTML = `
                 <div class="notification-header">
                     <div class="notification-title">
-                        <i class="fas fa-bell"></i> ${title}
+                        ${title}
                     </div>
                     <button class="notification-close" onclick="this.parentElement.parentElement.remove()">×</button>
                 </div>
                 <div class="notification-body">${message}</div>
             `;
-
             document.body.appendChild(notification);
-
             // Solicitar permissão para notificações do navegador
             if ('Notification' in window && Notification.permission === 'granted') {
                 new Notification(title, {
@@ -978,12 +869,10 @@
                     icon: 'https://cdn-icons-png.flaticon.com/512/4697/4697260.png'
                 });
             }
-
             notificationTimeout = setTimeout(() => {
                 notification.remove();
             }, 5000);
         }
-
         // Solicitar permissão para notificações ao carregar
         if ('Notification' in window && Notification.permission === 'default') {
             Notification.requestPermission();
