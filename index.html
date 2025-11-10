@@ -6,6 +6,15 @@
     <title>Sistema de Tarefas - TaskFlow</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#4F46E5">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="TaskFlow">
+    <link rel="manifest" href="data:application/json;base64,ewogICJuYW1lIjogIlRhc2tGbG93IiwKICAic2hvcnRfbmFtZSI6ICJUYXNrRmxvdyIsCiAgImljb25zIjogWwogICAgewogICAgICAic3JjIjogImh0dHBzOi8vY2RuLWljb25zLXBuZy5mbGF0aWNvbi5jb20vNTEyLzQ2OTcvNDY5NzI2MC5wbmciLAogICAgICAic2l6ZXMiOiAiNTEyeDUxMiIsCiAgICAgICJ0eXBlIjogImltYWdlL3BuZyIKICAgIH0KICBdLAogICJzdGFydF91cmwiOiAiLi8iLAogICJkaXNwbGF5IjogInN0YW5kYWxvbmUiLAogICJiYWNrZ3JvdW5kX2NvbG9yIjogIiM2NjdlZWEiLAogICJ0aGVtZV9jb2xvciI6ICIjNEZENTRFNSIsCiAgIm9yaWVudGF0aW9uIjogInBvcnRyYWl0Igp9">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/4697/4697260.png">
+    <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/4697/4697260.png">
     <style>
         * {
             margin: 0;
@@ -431,9 +440,37 @@
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
+        /* PWA Install Button */
+        #installButton {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 56px;
+            height: 56px;
+            font-size: 24px;
+            box-shadow: var(--shadow-lg);
+            cursor: pointer;
+            z-index: 1000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+        #installButton:hover {
+            background: var(--primary-dark);
+            transform: scale(1.1);
+        }
     </style>
 </head>
 <body>
+    <!-- PWA Install Button -->
+    <button id="installButton" title="Instalar TaskFlow">
+        <i class="fas fa-download"></i>
+    </button>
+
     <!-- Tela de Login/Cadastro -->
     <div id="authScreen" class="auth-container">
         <div class="auth-card">
@@ -518,6 +555,8 @@
             </div>
         </div>
     </div>
+
+    <!-- Service Worker Registration & PWA Install -->
     <script>
         // CONFIGURAÇÃO DO SUPABASE
         const SUPABASE_URL = 'https://djxcvgrunadpkzwpxtom.supabase.co';
@@ -527,12 +566,42 @@
         let currentUser = null;
         let currentFilter = 'pending';
         let notificationTimeout = null;
+        let deferredPrompt;
+
+        // === PWA: Registrar Service Worker ===
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('data:text/javascript;base64,Y29uc3QgdmVyc2lvbiA9IDE7CnNlbGYuYWRkRXZlbnRMaXN0ZW5lcignZmV0Y2gnLCBldmVudCA9PiB7CiAgY29uc3QgdXJsID0gZXZlbnQucmVxdWVzdC51cmw7CiAgaWYgKHVybC5pbmNsdWRlcycvaWNvbi5wbmcpKSB7CiAgICBldmVudC5yZXNwb25kV2l0aChjYWNoZXMubWF0Y2goZXZlbnQucmVxdWVzdCkgfHwgZmV0Y2goZXZlbnQucmVxdWVzdCkpfQp9KTsKc2VsZi5hZGRFdmVudExpc3RlbmVyKCdpbnN0YWxsJywgZXZlbnQgPT4geyk7')
+                    .then(reg => console.log('SW registrado:', reg))
+                    .catch(err => console.log('SW erro:', err));
+            });
+        }
+
+        // === PWA: Capturar evento de instalação ===
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            const installBtn = document.getElementById('installButton');
+            installBtn.style.display = 'flex';
+            installBtn.onclick = () => {
+                installBtn.style.display = 'none';
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then(choice => {
+                    if (choice.outcome === 'accepted') {
+                        console.log('PWA instalado');
+                    }
+                    deferredPrompt = null;
+                });
+            };
+        });
+
         // Verificar se já está logado
         const savedUser = localStorage.getItem('currentUser');
         if (savedUser) {
             currentUser = JSON.parse(savedUser);
             showDashboard();
         }
+
         // FUNÇÕES DE AUTENTICAÇÃO
         async function handleLogin() {
             const username = document.getElementById('username').value.trim();
@@ -541,7 +610,6 @@
                 showNotification('Erro', 'Por favor, preencha todos os campos');
                 return;
             }
-            // Se for Paulo, sempre admin
             if (username.toLowerCase() === 'paulo') {
                 const { data, error } = await supabase
                     .from('users')
@@ -574,6 +642,7 @@
             showDashboard();
             showNotification('Bem-vindo!', `Olá, ${currentUser.username}!`);
         }
+
         async function handleRegister() {
             const username = document.getElementById('username').value.trim();
             const password = document.getElementById('password').value;
@@ -599,6 +668,7 @@
             }
             showNotification('Sucesso!', 'Conta criada! Faça login agora.');
         }
+
         function handleLogout() {
             localStorage.removeItem('currentUser');
             currentUser = null;
@@ -606,6 +676,7 @@
             document.getElementById('authScreen').style.display = 'flex';
             showNotification('Até logo!', 'Você saiu com sucesso');
         }
+
         // FUNÇÕES DO DASHBOARD
         async function showDashboard() {
             document.getElementById('authScreen').style.display = 'none';
@@ -617,12 +688,13 @@
                 userBadge.innerHTML = `${currentUser.username} (Admin)`;
                 document.getElementById('createTaskCard').style.display = 'block';
                 await loadUsers();
-                // Inicializa o modo de atribuição
                 toggleAssignmentMode();
             }
             await loadTasks();
             subscribeToChanges();
+            requestNotificationPermission(); // Solicita permissão no mobile
         }
+
         async function loadUsers() {
             const { data, error } = await supabase
                 .from('users')
@@ -640,11 +712,11 @@
                 </label>
             `).join('');
         }
+
         function toggleUserSelect(checkbox) {
             checkbox.parentElement.classList.toggle('selected', checkbox.checked);
         }
 
-        // NOVA FUNÇÃO: Alterna entre "para mim mesmo" e "atribuir a outros"
         function toggleAssignmentMode() {
             const forMyself = document.getElementById('taskForMyself').checked;
             const adminUserSelect = document.getElementById('adminUserSelect');
@@ -669,7 +741,7 @@
             let finalUsers = [];
 
             if (document.getElementById('taskForMyself').checked) {
-                finalUsers = [currentUser.id]; // Tarefa para o próprio admin
+                finalUsers = [currentUser.id];
             } else {
                 finalUsers = Array.from(document.querySelectorAll('#userSelect input:checked'))
                     .map(cb => cb.value);
@@ -703,11 +775,12 @@
                 document.getElementById('taskTitle').value = '';
                 document.getElementById('taskDescription').value = '';
                 document.getElementById('taskForMyself').checked = true;
-                toggleAssignmentMode(); // Reseta visualmente
+                toggleAssignmentMode();
             }
             btn.innerHTML = 'Criar Tarefa';
             btn.disabled = false;
         }
+
         async function loadTasks() {
             const { data, error } = await supabase
                 .from('tasks')
@@ -724,6 +797,7 @@
             }
             displayTasks(data);
         }
+
         function displayTasks(tasks) {
             const filtered = tasks.filter(task => {
                 if (currentFilter === 'pending') return !task.completed;
@@ -756,6 +830,7 @@
                 </div>
             `).join('');
         }
+
         async function toggleTaskCompletion(taskId, isCompleted) {
             if (isCompleted) return;
             const { data, error } = await supabase
@@ -774,7 +849,6 @@
             }
             showNotification('Concluída!', 'Tarefa marcada como concluída');
            
-            // Notificar Paulo se não for ele que completou
             if (currentUser.id !== data.creator.id) {
                 await supabase
                     .from('notifications')
@@ -786,15 +860,16 @@
             }
             loadTasks();
         }
+
         function filterTasks(filter) {
             currentFilter = filter;
             document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
             event.target.classList.add('active');
             loadTasks();
         }
-        // NOTIFICAÇÕES EM TEMPO REAL
+
+        // === NOTIFICAÇÕES EM TEMPO REAL + PUSH (PWA) ===
         function subscribeToChanges() {
-            // Monitorar novas tarefas atribuídas
             supabase
                 .channel('tasks')
                 .on('postgres_changes',
@@ -811,15 +886,13 @@
                             .eq('id', payload.new.created_by)
                             .single();
                        
-                        showNotification(
-                            'Nova Tarefa!',
-                            `${data?.username || 'Alguém'} atribuiu uma nova tarefa para você: "${payload.new.title}"`
-                        );
+                        const message = `${data?.username || 'Alguém'} atribuiu uma nova tarefa para você: "${payload.new.title}"`;
+                        showNotification('Nova Tarefa!', message);
                         loadTasks();
                     }
                 )
                 .subscribe();
-            // Monitorar notificações
+
             supabase
                 .channel('notifications')
                 .on('postgres_changes',
@@ -831,8 +904,6 @@
                     },
                     (payload) => {
                         showNotification('Atualização', payload.new.message);
-                       
-                        // Marcar notificação como lida
                         supabase
                             .from('notifications')
                             .update({ read: true })
@@ -842,6 +913,7 @@
                 )
                 .subscribe();
         }
+
         function showNotification(title, message) {
             if (notificationTimeout) {
                 clearTimeout(notificationTimeout);
@@ -862,20 +934,36 @@
                 <div class="notification-body">${message}</div>
             `;
             document.body.appendChild(notification);
-            // Solicitar permissão para notificações do navegador
+
+            // === NOTIFICAÇÃO NATIVA DO NAVEGADOR (PC + Mobile) ===
             if ('Notification' in window && Notification.permission === 'granted') {
                 new Notification(title, {
                     body: message,
-                    icon: 'https://cdn-icons-png.flaticon.com/512/4697/4697260.png'
+                    icon: 'https://cdn-icons-png.flaticon.com/512/4697/4697260.png',
+                    tag: 'taskflow-notif',
+                    requireInteraction: true
                 });
             }
+
             notificationTimeout = setTimeout(() => {
                 notification.remove();
             }, 5000);
         }
-        // Solicitar permissão para notificações ao carregar
+
+        // === SOLICITAR PERMISSÃO DE NOTIFICAÇÃO (Mobile + Desktop) ===
+        function requestNotificationPermission() {
+            if ('Notification' in window && Notification.permission === 'default') {
+                Notification.requestPermission().then(permission => {
+                    if (permission === 'granted') {
+                        console.log('Notificações permitidas');
+                    }
+                });
+            }
+        }
+
+        // Solicitar permissão ao carregar
         if ('Notification' in window && Notification.permission === 'default') {
-            Notification.requestPermission();
+            requestNotificationPermission();
         }
     </script>
 </body>
