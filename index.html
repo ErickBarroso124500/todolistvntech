@@ -470,7 +470,6 @@
     <button id="installButton" title="Instalar TaskFlow">
         <i class="fas fa-download"></i>
     </button>
-
     <!-- Tela de Login/Cadastro -->
     <div id="authScreen" class="auth-container">
         <div class="auth-card">
@@ -520,7 +519,7 @@
                     <form class="task-form" onsubmit="createTask(event)">
                         <input type="text" class="task-input" id="taskTitle" placeholder="Título da tarefa" required>
                         <textarea class="task-input" id="taskDescription" placeholder="Descrição detalhada da tarefa"></textarea>
-                        <input type="date" class="task-input" id="taskDueDate" placeholder="Data de vencimento">
+                        <input type="datetime-local" class="task-input" id="taskDueDate" placeholder="Prazo de conclusão">
                         <div id="adminUserSelect" style="display: none;">
                             <label style="margin-bottom: 10px; display: block; font-weight: 600;">Atribuir para:</label>
                             <div class="user-select" id="userSelect"></div>
@@ -555,18 +554,20 @@
             </div>
         </div>
     </div>
-
     <!-- Service Worker Registration & PWA Install -->
     <script>
         // CONFIGURAÇÃO DO SUPABASE
         const SUPABASE_URL = 'https://djxcvgrunadpkzwpxtom.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRqeGN2Z3J1bmFkcGt6d3B4dG9tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI0NjczOTYsImV4cCI6MjA3ODA0MzM5Nn0.CRTsAj-yIqXJwrx1CGh6dhTjvsgyazHidOseJQwyRpI';
-       
+      
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         let currentUser = null;
         let currentFilter = 'pending';
         let notificationTimeout = null;
         let deferredPrompt;
+
+        // Fuso horário de Brasília (UTC-3)
+        const BRASILIA_TZ = 'America/Sao_Paulo';
 
         // === PWA: Registrar Service Worker ===
         if ('serviceWorker' in navigator) {
@@ -692,7 +693,7 @@
             }
             await loadTasks();
             subscribeToChanges();
-            requestNotificationPermission(); // Solicita permissão no mobile
+            requestNotificationPermission();
         }
 
         async function loadUsers() {
@@ -721,7 +722,6 @@
             const forMyself = document.getElementById('taskForMyself').checked;
             const adminUserSelect = document.getElementById('adminUserSelect');
             const userCheckboxes = document.querySelectorAll('#userSelect input[type="checkbox"]');
-
             if (forMyself) {
                 adminUserSelect.style.display = 'none';
                 userCheckboxes.forEach(cb => {
@@ -737,9 +737,9 @@
             event.preventDefault();
             const title = document.getElementById('taskTitle').value;
             const description = document.getElementById('taskDescription').value;
+            const dueDateInput = document.getElementById('taskDueDate').value;
 
             let finalUsers = [];
-
             if (document.getElementById('taskForMyself').checked) {
                 finalUsers = [currentUser.id];
             } else {
@@ -761,7 +761,8 @@
                 description,
                 assigned_to: userId,
                 created_by: currentUser.id,
-                completed: false
+                completed: false,
+                due_date: dueDateInput ? dueDateInput : null
             }));
 
             const { error } = await supabase
@@ -774,6 +775,7 @@
                 showNotification('Sucesso!', 'Tarefa criada e enviada!');
                 document.getElementById('taskTitle').value = '';
                 document.getElementById('taskDescription').value = '';
+                document.getElementById('taskDueDate').value = '';
                 document.getElementById('taskForMyself').checked = true;
                 toggleAssignmentMode();
             }
@@ -813,6 +815,21 @@
                 `;
                 return;
             }
+
+            // Função para formatar data/hora em Brasília
+            const formatDateTime = (dateStr) => {
+                if (!dateStr) return '';
+                const date = new Date(dateStr + 'Z'); // Força UTC
+                return date.toLocaleString('pt-BR', {
+                    timeZone: BRASILIA_TZ,
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+            };
+
             tasksList.innerHTML = filtered.map(task => `
                 <div class="task-item ${task.completed ? 'completed' : ''}" onclick="toggleTaskCompletion('${task.id}', ${task.completed})">
                     <div class="task-header">
@@ -826,6 +843,7 @@
                         <span>${task.assigned_user?.username || 'N/A'}</span>
                         <span>Criado por: ${task.creator?.username || 'N/A'}</span>
                         <span>${new Date(task.created_at).toLocaleDateString('pt-BR')}</span>
+                        ${task.due_date ? `<span>Prazo: ${formatDateTime(task.due_date)}</span>` : ''}
                     </div>
                 </div>
             `).join('');
@@ -848,7 +866,7 @@
                 return;
             }
             showNotification('Concluída!', 'Tarefa marcada como concluída');
-           
+          
             if (currentUser.id !== data.creator.id) {
                 await supabase
                     .from('notifications')
@@ -885,8 +903,12 @@
                             .select('username')
                             .eq('id', payload.new.created_by)
                             .single();
-                       
-                        const message = `${data?.username || 'Alguém'} atribuiu uma nova tarefa para você: "${payload.new.title}"`;
+                      
+                        const due = payload.new.due_date ? 
+                            new Date(payload.new.due_date + 'Z').toLocaleString('pt-BR', { timeZone: BRASILIA_TZ }) : 
+                            'sem prazo';
+                        
+                        const message = `${data?.username || 'Alguém'} atribuiu uma nova tarefa para você: "${payload.new.title}" (Prazo: ${due})`;
                         showNotification('Nova Tarefa!', message);
                         loadTasks();
                     }
@@ -935,7 +957,6 @@
             `;
             document.body.appendChild(notification);
 
-            // === NOTIFICAÇÃO NATIVA DO NAVEGADOR (PC + Mobile) ===
             if ('Notification' in window && Notification.permission === 'granted') {
                 new Notification(title, {
                     body: message,
@@ -950,7 +971,6 @@
             }, 5000);
         }
 
-        // === SOLICITAR PERMISSÃO DE NOTIFICAÇÃO (Mobile + Desktop) ===
         function requestNotificationPermission() {
             if ('Notification' in window && Notification.permission === 'default') {
                 Notification.requestPermission().then(permission => {
@@ -961,7 +981,6 @@
             }
         }
 
-        // Solicitar permissão ao carregar
         if ('Notification' in window && Notification.permission === 'default') {
             requestNotificationPermission();
         }
