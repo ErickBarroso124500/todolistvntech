@@ -730,9 +730,9 @@
             }
         }
 
-        // === CONVERSÃO DE FUSO HORÁRIO: BRASÍLIA (UTC-3) - VERSÃO 100% CONFIÁVEL ===
+        // === CORREÇÃO FINAL DO FUSO HORÁRIO: BRASÍLIA (UTC-3) ===
         function localToUTC(localDateTimeString) {
-            // Entrada: "2025-11-12T10:40"
+            // Entrada: "2025-11-11T21:00"
             const [datePart, timePart] = localDateTimeString.split('T');
             const [year, month, day] = datePart.split('-').map(Number);
             const [hour, minute] = timePart.split(':').map(Number);
@@ -742,10 +742,11 @@
             return localDate.toISOString();
         }
 
-        function utcToLocal(utcString) {
+        function utcToBrasilia(utcString) {
             const utcDate = new Date(utcString);
-            // Forçar exibição no fuso local do usuário (Brasil)
+            // Forçar exibição no fuso de Brasília
             return utcDate.toLocaleString('pt-BR', {
+                timeZone: 'America/Sao_Paulo',
                 day: '2-digit',
                 month: '2-digit',
                 year: 'numeric',
@@ -758,7 +759,7 @@
             event.preventDefault();
             const title = document.getElementById('taskTitle').value.trim();
             const description = document.getElementById('taskDescription').value.trim();
-            const dueDateInput = document.getElementById('taskDueDate').value; // "2025-11-12T10:40"
+            const dueDateInput = document.getElementById('taskDueDate').value; // "2025-11-11T21:00"
 
             if (!title) {
                 showNotification('Erro', 'O título da tarefa é obrigatório');
@@ -860,7 +861,7 @@
                         <span>${task.assigned_user?.username || 'N/A'}</span>
                         <span>Criado por: ${task.creator?.username || 'N/A'}</span>
                         <span>${new Date(task.created_at).toLocaleDateString('pt-BR')}</span>
-                        ${task.due_date ? `<span>Prazo: ${utcToLocal(task.due_date)}</span>` : ''}
+                        ${task.due_date ? `<span>Prazo: ${utcToBrasilia(task.due_date)}</span>` : ''}
                     </div>
                 </div>
             `).join('');
@@ -903,7 +904,7 @@
             loadTasks();
         }
 
-        // === NOTIFICAÇÕES EM TEMPO REAL + PUSH (PWA) ===
+        // === NOTIFICAÇÕES EM TEMPO REAL + PUSH (PWA) - MANTIDAS INTACTAS ===
         function subscribeToChanges() {
             supabase
                 .channel('tasks')
@@ -922,7 +923,7 @@
                             .single();
                       
                         const due = payload.new.due_date ? 
-                            utcToLocal(payload.new.due_date) : 
+                            utcToBrasilia(payload.new.due_date) : 
                             'sem prazo';
                         
                         const message = `${data?.username || 'Alguém'} atribuiu uma nova tarefa para você: "${payload.new.title}" (Prazo: ${due})`;
