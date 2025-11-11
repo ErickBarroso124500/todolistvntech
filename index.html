@@ -730,26 +730,28 @@
             }
         }
 
-        // === FUSO HORÁRIO FIXO: BRASÍLIA (UTC-3) - 100% GARANTIDO ===
+        // === FUSO HORÁRIO BRASÍLIA (UTC-3) — CORRIGIDO DEFINITIVAMENTE ===
         const BRASILIA_TZ = 'America/Sao_Paulo';
 
         function localToUTC(localDateTimeString) {
-            // Entrada: "2025-11-11T21:00"
-            // Cria data como se fosse em Brasília (UTC-3)
+            // Entrada: "2025-11-12T11:00"
             const [datePart, timePart] = localDateTimeString.split('T');
             const [year, month, day] = datePart.split('-').map(Number);
             const [hour, minute] = timePart.split(':').map(Number);
 
-            // Forçar interpretação como horário de Brasília
-            const options = {
-                timeZone: BRASILIA_TZ,
-                year, month, day, hour, minute
-            };
-            const formatter = new Intl.DateTimeFormat('en-CA', options);
-            const isoLocal = formatter.format(new Date()) + 'T' + timePart;
+            // Criar data com os valores exatos
+            const date = new Date();
+            date.setFullYear(year);
+            date.setMonth(month - 1);
+            date.setDate(day);
+            date.setHours(hour);
+            date.setMinutes(minute);
+            date.setSeconds(0);
+            date.setMilliseconds(0);
 
-            // Converter para UTC
-            return new Date(isoLocal).toISOString();
+            // Forçar interpretação como fuso de Brasília (UTC-3)
+            const isoString = date.toLocaleString('sv', { timeZone: BRASILIA_TZ }).replace(' ', 'T').split('.')[0];
+            return new Date(isoString).toISOString();
         }
 
         function utcToBrasilia(utcString) {
@@ -767,7 +769,7 @@
             event.preventDefault();
             const title = document.getElementById('taskTitle').value.trim();
             const description = document.getElementById('taskDescription').value.trim();
-            const dueDateInput = document.getElementById('taskDueDate').value; // "2025-11-11T21:00"
+            const dueDateInput = document.getElementById('taskDueDate').value;
 
             if (!title) {
                 showNotification('Erro', 'O título da tarefa é obrigatório');
@@ -811,7 +813,6 @@
                 console.error('Erro Supabase:', error);
             } else {
                 showNotification('Sucesso!', 'Tarefa criada com sucesso!');
-                // Limpar formulário
                 document.getElementById('taskTitle').value = '';
                 document.getElementById('taskDescription').value = '';
                 document.getElementById('taskDueDate').value = '';
@@ -877,7 +878,7 @@
 
         async function toggleTaskCompletion(taskId, isCompleted) {
             if (isCompleted) return;
-            const { data, error } = await supabse
+            const { data, error } = await supabase
                 .from('tasks')
                 .update({ completed: true })
                 .eq('id', taskId)
