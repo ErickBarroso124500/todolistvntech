@@ -566,9 +566,6 @@
         let notificationTimeout = null;
         let deferredPrompt;
 
-        // Fuso horário de Brasília (UTC-3)
-        const BRASILIA_TZ = 'America/Sao_Paulo';
-
         // === PWA: Registrar Service Worker ===
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
@@ -756,13 +753,20 @@
             btn.innerHTML = '<span class="loading"></span> Criando...';
             btn.disabled = true;
 
+            // === CONVERTER DATETIME-LOCAL PARA UTC (ISO) ===
+            let dueDateUTC = null;
+            if (dueDateInput) {
+                const localDate = new Date(dueDateInput);
+                dueDateUTC = localDate.toISOString(); // Converte para UTC
+            }
+
             const tasks = finalUsers.map(userId => ({
                 title,
                 description,
                 assigned_to: userId,
                 created_by: currentUser.id,
                 completed: false,
-                due_date: dueDateInput ? dueDateInput : null
+                due_date: dueDateUTC
             }));
 
             const { error } = await supabase
@@ -816,12 +820,12 @@
                 return;
             }
 
-            // Função para formatar data/hora em Brasília
-            const formatDateTime = (dateStr) => {
-                if (!dateStr) return '';
-                const date = new Date(dateStr + 'Z'); // Força UTC
-                return date.toLocaleString('pt-BR', {
-                    timeZone: BRASILIA_TZ,
+            // === FORMATAR DATA/HORA NO FUSO DE BRASÍLIA ===
+            const formatDateTime = (isoString) => {
+                if (!isoString) return '';
+                const utcDate = new Date(isoString);
+                return utcDate.toLocaleString('pt-BR', {
+                    timeZone: 'America/Sao_Paulo',
                     day: '2-digit',
                     month: '2-digit',
                     year: 'numeric',
@@ -905,7 +909,7 @@
                             .single();
                       
                         const due = payload.new.due_date ? 
-                            new Date(payload.new.due_date + 'Z').toLocaleString('pt-BR', { timeZone: BRASILIA_TZ }) : 
+                            new Date(payload.new.due_date).toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' }) : 
                             'sem prazo';
                         
                         const message = `${data?.username || 'Alguém'} atribuiu uma nova tarefa para você: "${payload.new.title}" (Prazo: ${due})`;
