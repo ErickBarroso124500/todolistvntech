@@ -341,6 +341,17 @@
             margin-bottom: 12px;
             line-height: 1.5;
         }
+        .task-link {
+            display: block;
+            margin: 12px 0 8px;
+            font-size: 14px;
+            color: var(--primary);
+            text-decoration: underline;
+            word-break: break-all;
+        }
+        .task-link:hover {
+            color: var(--primary-dark);
+        }
         .task-meta {
             display: flex;
             gap: 15px;
@@ -470,7 +481,6 @@
     <button id="installButton" title="Instalar TaskFlow">
         <i class="fas fa-download"></i>
     </button>
-
     <!-- Tela de Login/Cadastro -->
     <div id="authScreen" class="auth-container">
         <div class="auth-card">
@@ -520,6 +530,7 @@
                     <form class="task-form" onsubmit="createTask(event)">
                         <input type="text" class="task-input" id="taskTitle" placeholder="Título da tarefa" required>
                         <textarea class="task-input" id="taskDescription" placeholder="Descrição detalhada da tarefa"></textarea>
+                        <input type="url" class="task-input" id="taskLink" placeholder="Link (opcional)">
                         <input type="date" class="task-input" id="taskDueDate" placeholder="Data de vencimento">
                         <div id="adminUserSelect" style="display: none;">
                             <label style="margin-bottom: 10px; display: block; font-weight: 600;">Atribuir para:</label>
@@ -555,28 +566,25 @@
             </div>
         </div>
     </div>
-
     <!-- Service Worker Registration & PWA Install -->
     <script>
         // CONFIGURAÇÃO DO SUPABASE
         const SUPABASE_URL = 'https://djxcvgrunadpkzwpxtom.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRqeGN2Z3J1bmFkcGt6d3B4dG9tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI0NjczOTYsImV4cCI6MjA3ODA0MzM5Nn0.CRTsAj-yIqXJwrx1CGh6dhTjvsgyazHidOseJQwyRpI';
-       
+      
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         let currentUser = null;
         let currentFilter = 'pending';
         let notificationTimeout = null;
         let deferredPrompt;
-
         // === PWA: Registrar Service Worker ===
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('data:text/javascript;base64,Y29uc3QgdmVyc2lvbiA9IDE7CnNlbGYuYWRkRXZlbnRMaXN0ZW5lcignZmV0Y2gnLCBldmVudCA9PiB7CiAgY29uc3QgdXJsID0gZXZlbnQucmVxdWVzdC51cmw7CiAgaWYgKHVybC5pbmNsdWRlcycvaWNvbi5wbmcpKSB7CiAgICBldmVudC5yZXNwb25kV2l0aChjYWNoZXMubWF0Y2goZXZlbnQucmVxdWVzdCkgfHwgZmV0Y2goZXZlbnQucmVxdWVzdCkpfQp9KTsKc2VsZi5hZGRFdmVudExpc3RlbmVyKCdpbnN0YWxsJywgZXZlbnQgPT4geyk7')
+                navigator.serviceWorker.register('data:text/javascript;base64,Y29uc3QgdmVyc2lvbiA9IDE7CnNlbGYuYWRkRXZlbnRMaXN0ZW5lcignZmV0Y2gnLCBldmVudCA9PiB7CiAgY29uc3QgdXJsID0gZXZlbnQucmVxdWVzdC51cmw7CiAgaWYgKHVybC5pbmNsdWRlcycvaWNvbi5wbmcpKSB7CiAgICBldmVudC5yZXNwb25kV2l0aChjYWNoZXMubWF0Y2goZXZlbnQucmVxdWVzdCkgeHwgZmV0Y2goZXZlbnQucmVxdWVzdCkpfQp9KTsKc2VsZi5hZGRFdmVudExpc3RlbmVyKCdpbnN0YWxsJywgZXZlbnQgPT4geyk7')
                     .then(reg => console.log('SW registrado:', reg))
                     .catch(err => console.log('SW erro:', err));
             });
         }
-
         // === PWA: Capturar evento de instalação ===
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
@@ -594,14 +602,12 @@
                 });
             };
         });
-
         // Verificar se já está logado
         const savedUser = localStorage.getItem('currentUser');
         if (savedUser) {
             currentUser = JSON.parse(savedUser);
             showDashboard();
         }
-
         // FUNÇÕES DE AUTENTICAÇÃO
         async function handleLogin() {
             const username = document.getElementById('username').value.trim();
@@ -642,7 +648,6 @@
             showDashboard();
             showNotification('Bem-vindo!', `Olá, ${currentUser.username}!`);
         }
-
         async function handleRegister() {
             const username = document.getElementById('username').value.trim();
             const password = document.getElementById('password').value;
@@ -668,7 +673,6 @@
             }
             showNotification('Sucesso!', 'Conta criada! Faça login agora.');
         }
-
         function handleLogout() {
             localStorage.removeItem('currentUser');
             currentUser = null;
@@ -676,7 +680,6 @@
             document.getElementById('authScreen').style.display = 'flex';
             showNotification('Até logo!', 'Você saiu com sucesso');
         }
-
         // FUNÇÕES DO DASHBOARD
         async function showDashboard() {
             document.getElementById('authScreen').style.display = 'none';
@@ -694,7 +697,6 @@
             subscribeToChanges();
             requestNotificationPermission(); // Solicita permissão no mobile
         }
-
         async function loadUsers() {
             const { data, error } = await supabase
                 .from('users')
@@ -712,16 +714,13 @@
                 </label>
             `).join('');
         }
-
         function toggleUserSelect(checkbox) {
             checkbox.parentElement.classList.toggle('selected', checkbox.checked);
         }
-
         function toggleAssignmentMode() {
             const forMyself = document.getElementById('taskForMyself').checked;
             const adminUserSelect = document.getElementById('adminUserSelect');
             const userCheckboxes = document.querySelectorAll('#userSelect input[type="checkbox"]');
-
             if (forMyself) {
                 adminUserSelect.style.display = 'none';
                 userCheckboxes.forEach(cb => {
@@ -732,55 +731,49 @@
                 adminUserSelect.style.display = 'block';
             }
         }
-
         async function createTask(event) {
             event.preventDefault();
             const title = document.getElementById('taskTitle').value;
             const description = document.getElementById('taskDescription').value;
-
+            const link = document.getElementById('taskLink').value.trim();
             let finalUsers = [];
-
             if (document.getElementById('taskForMyself').checked) {
                 finalUsers = [currentUser.id];
             } else {
                 finalUsers = Array.from(document.querySelectorAll('#userSelect input:checked'))
                     .map(cb => cb.value);
             }
-
             if (finalUsers.length === 0) {
                 showNotification('Atenção', 'Selecione pelo menos um usuário');
                 return;
             }
-
             const btn = event.target.querySelector('button');
             btn.innerHTML = '<span class="loading"></span> Criando...';
             btn.disabled = true;
-
             const tasks = finalUsers.map(userId => ({
                 title,
                 description,
+                link: link || null,
                 assigned_to: userId,
                 created_by: currentUser.id,
                 completed: false
             }));
-
             const { error } = await supabase
                 .from('tasks')
                 .insert(tasks);
-
             if (error) {
-                showNotification('Erro', 'Erro ao criar tarefa: ' + error.message);
+                show'sNotification('Erro', 'Erro ao criar tarefa: ' + error.message);
             } else {
                 showNotification('Sucesso!', 'Tarefa criada e enviada!');
                 document.getElementById('taskTitle').value = '';
                 document.getElementById('taskDescription').value = '';
+                document.getElementById('taskLink').value = '';
                 document.getElementById('taskForMyself').checked = true;
                 toggleAssignmentMode();
             }
             btn.innerHTML = 'Criar Tarefa';
             btn.disabled = false;
         }
-
         async function loadTasks() {
             const { data, error } = await supabase
                 .from('tasks')
@@ -797,7 +790,6 @@
             }
             displayTasks(data);
         }
-
         function displayTasks(tasks) {
             const filtered = tasks.filter(task => {
                 if (currentFilter === 'pending') return !task.completed;
@@ -822,6 +814,7 @@
                         </span>
                     </div>
                     ${task.description ? `<div class="task-description">${task.description}</div>` : ''}
+                    ${task.link ? `<a href="${task.link}" class="task-link" target="_blank" rel="noopener">Acessar Link</a>` : ''}
                     <div class="task-meta">
                         <span>${task.assigned_user?.username || 'N/A'}</span>
                         <span>Criado por: ${task.creator?.username || 'N/A'}</span>
@@ -830,12 +823,11 @@
                 </div>
             `).join('');
         }
-
         async function toggleTaskCompletion(taskId, isCompleted) {
-            if (isCompleted) return;
+            const newStatus = !isCompleted;
             const { data, error } = await supabase
                 .from('tasks')
-                .update({ completed: true })
+                .update({ completed: newStatus })
                 .eq('id', taskId)
                 .select(`
                     *,
@@ -847,9 +839,10 @@
                 showNotification('Erro', 'Erro ao atualizar tarefa');
                 return;
             }
-            showNotification('Concluída!', 'Tarefa marcada como concluída');
-           
-            if (currentUser.id !== data.creator.id) {
+            const action = newStatus ? 'concluída' : 'reaberta';
+            showNotification('Sucesso', `Tarefa ${action} com sucesso!`);
+          
+            if (currentUser.id !== data.creator.id && newStatus) {
                 await supabase
                     .from('notifications')
                     .insert({
@@ -860,14 +853,12 @@
             }
             loadTasks();
         }
-
         function filterTasks(filter) {
             currentFilter = filter;
             document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
             event.target.classList.add('active');
             loadTasks();
         }
-
         // === NOTIFICAÇÕES EM TEMPO REAL + PUSH (PWA) ===
         function subscribeToChanges() {
             supabase
@@ -885,14 +876,13 @@
                             .select('username')
                             .eq('id', payload.new.created_by)
                             .single();
-                       
+                      
                         const message = `${data?.username || 'Alguém'} atribuiu uma nova tarefa para você: "${payload.new.title}"`;
                         showNotification('Nova Tarefa!', message);
                         loadTasks();
                     }
                 )
                 .subscribe();
-
             supabase
                 .channel('notifications')
                 .on('postgres_changes',
@@ -913,7 +903,6 @@
                 )
                 .subscribe();
         }
-
         function showNotification(title, message) {
             if (notificationTimeout) {
                 clearTimeout(notificationTimeout);
@@ -934,7 +923,6 @@
                 <div class="notification-body">${message}</div>
             `;
             document.body.appendChild(notification);
-
             // === NOTIFICAÇÃO NATIVA DO NAVEGADOR (PC + Mobile) ===
             if ('Notification' in window && Notification.permission === 'granted') {
                 new Notification(title, {
@@ -944,12 +932,10 @@
                     requireInteraction: true
                 });
             }
-
             notificationTimeout = setTimeout(() => {
                 notification.remove();
             }, 5000);
         }
-
         // === SOLICITAR PERMISSÃO DE NOTIFICAÇÃO (Mobile + Desktop) ===
         function requestNotificationPermission() {
             if ('Notification' in window && Notification.permission === 'default') {
@@ -960,7 +946,6 @@
                 });
             }
         }
-
         // Solicitar permissão ao carregar
         if ('Notification' in window && Notification.permission === 'default') {
             requestNotificationPermission();
