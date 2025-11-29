@@ -99,6 +99,7 @@
             color: var(--text);
             font-size: 14px;
         }
+        }
         .form-group input {
             width: 100%;
             padding: 12px 16px;
@@ -479,7 +480,7 @@
 <body>
     <!-- PWA Install Button -->
     <button id="installButton" title="Instalar TaskFlow">
-        <i class="fas fa-download"></i>
+        Download Icon
     </button>
 
     <!-- Tela de Login/Cadastro -->
@@ -587,7 +588,7 @@
         // === PWA: Registrar Service Worker ===
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('data:text/javascript;base64,Y29uc3QgdmVyc2lvbiA9IDE7CnNlbGYuYWRkRXZlbnRMaXN0ZW5lcignZmV0Y2gnLCBldmVudCA9PiB7CiAgY29uc3QgdXJsID0gZXZlbnQucmVxdWVzdC51cmw7CiAgaWYgKHVybC5pbmNsdWRlcycvaWNvbi5wbmcpKSB7CiAgICBldmVudC5yZXNwb25kV2l0aChjYWNoZXMubWF0Y2goZXZlbnQucmVxdWVzdCkgeHwgZmV0Y2goZXZlbnQucmVxdWVzdCkpfQp9KTsKc2VsZi5hZGRFdmVudExpc3RlbmVyKCdpbnN0YWxsJywgZXZlbnQgPT4geyk7')
+                navigator.serviceWorker.register('data:text/javascript;base64,Y29uc3QgdmVyc2lvbiA9IDE7CnNlbGYuYWRkRXZlbnRMaXN0ZW5lcignZmV0Y2gnLCBldmVudCA9PiB7CiAgY29uc3QgdXJsID0gZXZlbnQucmVxdWVzdC51cmw7CiAgaWYgKHVybC5pbmNsdWRlcycvaWNvbi5wbmcpKSB7CiAgICBldmVudC5yZXNwb25kV2l0aChjYWNoZXMubWF0Y2goZXZlbnQucmVxdWVzdC5yZXF1ZXN0KSB8fCBmZXRjaChldmVudC5yZXF1ZXN0KSl9Cn0pOwpzZWxmLmFkZEV2ZW50TGlzdGVuZXIoJ2luc3RhbGwnLCBldmVudCA9PiB7fSk7')
                     .then(reg => console.log('SW registrado:', reg))
                     .catch(err => console.log('SW erro:', err));
             });
@@ -840,6 +841,14 @@
             displayTasks(data);
         }
 
+        // === CORREÇÃO DA DATA AQUI ===
+        function formatDateBR(dateStr) {
+            if (!dateStr) return '';
+            const [year, month, day] = dateStr.split('-');
+            const date = new Date(year, month - 1, day);
+            return date.toLocaleDateString('pt-BR');
+        }
+
         function displayTasks(tasks) {
             const filtered = tasks.filter(task => {
                 if (currentFilter === 'pending') return !task.completed;
@@ -869,18 +878,14 @@
                     ${task.description ? `<div class="task-description">${task.description}</div>` : ''}
                     ${task.link ? `<a href="${task.link}" class="task-link" target="_blank" rel="noopener" onclick="event.stopPropagation()">Acessar Link</a>` : ''}
                     <div class="task-meta">
-                        <span><i class="fas fa-user"></i> ${task.assigned_user?.username || 'N/A'}</span>
-                        <span><i class="fas fa-user-plus"></i> Criado por: ${task.creator?.username || 'N/A'}</span>
-                        <span><i class="fas fa-calendar"></i> ${new Date(task.created_at).toLocaleDateString('pt-BR')}</span>
-                        ${task.due_date ? `<span><i class="fas fa-clock"></i> Vence em: ${new Date(task.due_date).toLocaleDateString('pt-BR')}</span>` : ''}
+                        <span>User Icon ${task.assigned_user?.username || 'N/A'}</span>
+                        <span>User Plus Icon Criado por: ${task.creator?.username || 'N/A'}</span>
+                        <span>Calendar Icon ${new Date(task.created_at).toLocaleDateString('pt-BR')}</span>
+                        ${task.due_date ? `<span>Clock Icon Vence em: ${formatDateBR(task.due_date)}</span>` : ''}
                     </div>
                 </div>
             `).join('');
         }
-
-        // ... resto do código 100% igual ao seu original ...
-        // (toggleTaskCompletion, filterTasks, subscribeToChanges, showNotification, etc.)
-        // tudo exatamente como você tinha
 
         async function toggleTaskCompletion(taskId, isCompleted) {
             const newStatus = !isCompleted;
@@ -963,7 +968,7 @@
                             .from('notifications')
                             .update({ read: true })
                             .eq('id', payload.new.id)
- Олександр                            .then(() => {});
+                            .then(() => {});
                     }
                 )
                 .subscribe();
@@ -984,7 +989,7 @@
             notification.innerHTML = `
                 <div class="notification-header">
                     <div class="notification-title">
-                        <i class="fas fa-bell"></i> ${title}
+                        Bell Icon ${title}
                     </div>
                     <button class="notification-close" onclick="this.parentElement.parentElement.remove()">×</button>
                 </div>
