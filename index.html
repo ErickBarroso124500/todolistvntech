@@ -129,7 +129,7 @@
         .btn-primary {
             background: var(--primary);
             color: white;
-        }
+        “
         .btn-primary:hover {
             background: var(--primary-dark);
             transform: translateY(-1px);
@@ -309,6 +309,13 @@
         }
         .task-item.completed .task-title {
             text-decoration: line-through;
+        }
+        /* ADICIONADO: estilo para tarefa atrasada */
+        .task-item.overdue {
+            border-left-color: #EF4444 !important;
+        }
+        .task-item.overdue .task-title {
+            color: #991B1B;
         }
         .task-header {
             display: flex;
@@ -587,7 +594,8 @@
         // === PWA: Registrar Service Worker ===
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('data:text/javascript;base64,Y29uc3QgdmVyc2lvbiA9IDE7CnNlbGYuYWRkRXZlbnRMaXN0ZW5lcignZmV0Y2gnLCBldmVudCA9PiB7CiAgY29uc3QgdXJsID0gZXZlbnQucmVxdWVzdC51cmw7CiAgaWYgKHVybC5pbmNsdWRlcycvaWNvbi5wbmcpKSB7CiAgICBldmVudC5yZXNwb25kV2l0aChjYWNoZXMubWF0Y2goZXZlbnQucmVxdWVzdCkgeHwgZmV0Y2goZXZlbnQucmVxdWVzdCkpfQp9KTsKc2VsZi5hZGRFdmVudExpc3RlbmVyKCdpbnN0YWxsJywgZXZlbnQgPT4geyk7')
+                navigator.serviceWorker.register('data:text/javascript;base64,Y29uc3QgdmVyc2lvbiA9IDE7CnNlbGYuYWRkRXZlbnRMaXN0ZW5lcignZmV0Y2gnLCBldmVudCA9PiB7CiAgY29uc3QgdXJsID0gZXZlbnQucmVxdWVzdC51cmw7CiAgaWYgKHVybC5pbmNsdWRlcycvaWNvbi5wbmcpKSB7CiAgICBldmVudC5yZXNwb25kV2l0aChjYWNoZXMubWF0Y2goZXZlbnQucmVxdWVzdCkgeHwgZmV0Y2goZXZlbnQucmVxdWVzd ' + 
+                'agp9KTsKc2VsZi5hZGRFdmVudExpc3RlbmVyKCdpbnN0YWxsJywgZXZlbnQgPT4geyk7')
                     .then(reg => console.log('SW registrado:', reg))
                     .catch(err => console.log('SW erro:', err));
             });
@@ -765,12 +773,14 @@
             }
         }
 
+        // === FUNÇÃO CORRIGIDA: agora salva e exibe a data de vencimento corretamente ===
         async function createTask(event) {
             event.preventDefault();
 
             const title = document.getElementById('taskTitle').value;
             const description = document.getElementById('taskDescription').value;
             const link = document.getElementById('taskLink').value.trim();
+            const dueDate = document.getElementById('taskDueDate').value; // CAPTURA A DATA AQUI
 
             let finalUsers = [];
             if (document.getElementById('taskForMyself').checked) {
@@ -793,6 +803,7 @@
                 title,
                 description,
                 link: link || null,
+                due_date: dueDate || null,  // SALVA A DATA DE VENCIMENTO
                 assigned_to: userId,
                 created_by: currentUser.id,
                 completed: false
@@ -809,6 +820,7 @@
                 document.getElementById('taskTitle').value = '';
                 document.getElementById('taskDescription').value = '';
                 document.getElementById('taskLink').value = '';
+                document.getElementById('taskDueDate').value = ''; // limpa o campo de data
                 document.getElementById('taskForMyself').checked = true;
                 toggleAssignmentMode();
             }
@@ -854,8 +866,14 @@
                 return;
             }
 
-            tasksList.innerHTML = filtered.map(task => `
-                <div class="task-item ${task.completed ? 'completed' : ''}" onclick="toggleTaskCompletion('${task.id}', ${task.completed})">
+            const hoje = new Date().toISOString().split('T')[0];
+
+            tasksList.innerHTML = filtered.map(task => {
+                const vencimento = task.due_date ? new Date(task.due_date).toLocaleDateString('pt-BR') : null;
+                const atrasada = task.due_date && task.due_date < hoje && !task.completed;
+
+                return `
+                <div class="task-item ${task.completed ? 'completed' : ''} ${atrasada ? 'overdue' : ''}" onclick="toggleTaskCompletion('${task.id}', ${task.completed})">
                     <div class="task-header">
                         <div class="task-title">${task.title}</div>
                         <span class="task-status ${task.completed ? 'status-completed' : 'status-pending'}">
@@ -868,9 +886,10 @@
                         <span><i class="fas fa-user"></i> ${task.assigned_user?.username || 'N/A'}</span>
                         <span><i class="fas fa-user-plus"></i> Criado por: ${task.creator?.username || 'N/A'}</span>
                         <span><i class="fas fa-calendar"></i> ${new Date(task.created_at).toLocaleDateString('pt-BR')}</span>
+                        ${vencimento ? `<span style="color: ${atrasada ? '#EF4444' : 'inherit'}; font-weight: ${atrasada ? '600' : 'normal'};"><i class="fas fa-clock"></i> Vence em: ${vencimento}</span>` : ''}
                     </div>
                 </div>
-            `).join('');
+            `}).join('');
         }
 
         async function toggleTaskCompletion(taskId, isCompleted) {
@@ -984,7 +1003,6 @@
             `;
             document.body.appendChild(notification);
 
-            // === NOTIFICAÇÃO NATIVA DO NAVEGADOR (PC + Mobile) ===
             if ('Notification' in window && Notification.permission === 'granted') {
                 new Notification(title, {
                     body: message,
@@ -999,7 +1017,6 @@
             }, 5000);
         }
 
-        // === SOLICITAR PERMISSÃO DE NOTIFICAÇÃO (Mobile + Desktop) ===
         function requestNotificationPermission() {
             if ('Notification' in window && Notification.permission === 'default') {
                 Notification.requestPermission().then(permission => {
@@ -1010,7 +1027,6 @@
             }
         }
 
-        // Solicitar permissão ao carregar
         if ('Notification' in window && Notification.permission === 'default') {
             requestNotificationPermission();
         }
