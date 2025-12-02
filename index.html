@@ -3,10 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema de Tarefas - TaskFlow</title>
+    <title>TaskFlow - Gerenciador de Tarefas Profissional</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- ADICIONADO: Confetti -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
     <!-- PWA Meta Tags -->
@@ -18,592 +17,326 @@
     <link rel="manifest" href="data:application/json;base64,ewogICJuYW1lIjogIlRhc2tGbG93IiwKICAic2hvcnRfbmFtZSI6ICJUYXNrRmxvdyIsCiAgImljb25zIjogWwogICAgewogICAgICAic3JjIjogImh0dHBzOi8vY2RuLWljb25zLXBuZy5mbGF0aWNvbi5jb20vNTEyLzQ2OTcvNDY5NzI2MC5wbmciLAogICAgICAic2l6ZXMiOiAiNTEyeDUxMiIsCiAgICAgICJ0eXBlIjogImltYWdlL3BuZyIKICAgIH0KICBdLAogICJzdGFydF91cmwiOiAiLi8iLAogICJkaXNwbGF5IjogInN0YW5kYWxvbmUiLAogICJiYWNrZ3JvdW5kX2NvbG9yIjogIiM2NjdlZWEiLAogICJ0aGVtZV9jb2xvciI6ICIjNEZENTRFNSIsCiAgIm9yaWVudGF0aW9uIjogInBvcnRyYWl0Igp9">
     <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/4697/4697260.png">
     <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/4697/4697260.png">
+
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
-            --primary: #4F46E5;
-            --primary-dark: #4338CA;
-            --secondary: #10B981;
-            --danger: #EF4444;
-            --warning: #F59E0B;
-            --dark: #1F2937;
-            --light: #F9FAFB;
-            --border: #E5E7EB;
-            --text: #374151;
-            --text-light: #6B7280;
-            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --primary: #4F46E5; --primary-dark: #4338CA; --secondary: #10B981;
+            --danger: #EF4444; --warning: #F59E0B; --dark: #1e293b; --light: #f8fafc;
+            --border: #e2e8f0; --text: #334155; --text-light: #64748b;
+            --shadow: 0 20px 25px -5px rgba(0,0,0,0.12), 0 10px 10px -5px rgba(0,0,0,0.04);
+            --glass: rgba(255, 255, 255, 0.25);
+            --radius: 24px;
         }
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             color: var(--text);
-            transition: background 0.5s ease;
+            transition: all 0.5s ease;
         }
-        /* ADICIONADO: Modo Escuro */
         body.dark {
             background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
             color: #e2e8f0;
         }
-        body.dark .card, body.dark .auth-card, body.dark .header, body.dark .notification, body.dark .task-item {
-            background: #1e293b !important;
-            color: #e2e8f0;
-            border-color: #334155;
+        body.dark .card, body.dark .header, body.dark .auth-card, body.dark .notification, body.dark .task-item, body.dark .empty-state {
+            background: rgba(30, 41, 59, 0.9) !important;
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255,255,255,0.1);
         }
-        body.dark input, body.dark textarea, body.dark .task-input {
-            background: #1e293b !important;
-            color: white !important;
+        body.dark input, body.dark textarea, body.dark .task-input, body.dark .search-bar input {
+            background: rgba(15, 23, 42, 0.9) !important;
             border-color: #334155 !important;
+            color: white !important;
         }
         body.dark .tab { background: #334155; color: #e2e8f0; }
         body.dark .tab.active { background: #6366f1; }
 
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-        /* Login/Cadastro */
-        .auth-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-        }
-        .auth-card {
-            background: white;
-            padding: 40px;
-            border-radius: 16px;
-            box-shadow: var(--shadow-lg);
-            width: 100%;
-            max-width: 420px;
-            animation: slideUp 0.3s ease-out;
-        }
-        @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        .auth-header {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-        .auth-header h1 {
-            color: var(--primary);
-            font-size: 28px;
-            margin-bottom: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
-        .auth-header p {
-            color: var(--text-light);
-            font-size: 14px;
-        }
-        .form-group {
-            margin-bottom: 20px;
-        }
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 500;
-            color: var(--text);
-            font-size: 14px;
-        }
-        }
-        .form-group input {
-            width: 100%;
-            padding: 12px 16px;
-            border: 2px solid var(--border);
-            border-radius: 8px;
-            font-size: 14px;
-            transition: all 0.2s;
-        }
-        .form-group input:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
-        }
-        .btn {
-            width: 100%;
-            padding: 12px 24px;
-            border: none;
-            border-radius: 8px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
-        .btn-primary {
-            background: var(--primary);
-            color: white;
-        }
-        .btn-primary:hover {
-            background: var(--primary-dark);
-            transform: translateY(-1px);
-            box-shadow: var(--shadow);
-        }
-        .btn-secondary {
-            background: var(--light);
-            color: var(--text);
-            margin-top: 10px;
-        }
-        .btn-secondary:hover {
-            background: var(--border);
-        }
-        /* Dashboard */
-        .dashboard {
-            display: none;
-        }
-        .dashboard.active {
-            display: block;
-        }
+        .container { max-width: 1400px; margin: 0 auto; padding: 28px; }
+
+        /* Header Premium com Contador */
         .header {
-            background: white;
-            padding: 20px 30px;
-            border-radius: 16px;
-            box-shadow: var(--shadow);
-            margin-bottom: 30px;
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.2);
+            padding: 36px 44px;
+            border-radius: var(--radius);
+            margin-bottom: 36px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            box-shadow: var(--shadow);
+        }
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 32px;
         }
         .header-left h1 {
-            font-size: 24px;
-            color: var(--dark);
-            margin-bottom: 4px;
+            font-size: 38px;
+            font-weight: 900;
+            background: linear-gradient(90deg, #4F46E5, #7c3aed);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
-        /* MODIFICADO: Contador de tarefas */
-        .header-left h1::after {
-            content: " (" attr(data-pending) " pendentes • " attr(data-completed) " concluídas)";
-            font-size: 14px;
-            opacity: 0.8;
-            font-weight: normal;
-        }
-        .header-left p {
-            color: var(--text-light);
-            font-size: 14px;
-        }
-        .header-right {
+        .stats-grid {
             display: flex;
-            gap: 15px;
-            align-items: center;
+            gap: 24px;
+            font-size: 16px;
         }
-        .user-badge {
-            background: var(--primary);
-            color: white;
-            padding: 8px 16px;
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 16px 28px;
+            background: rgba(255,255,255,0.4);
             border-radius: 20px;
-            font-size: 13px;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 8px;
+            backdrop-filter: blur(12px);
+            font-weight: 700;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
         }
-        .admin-badge {
-            background: var(--warning);
+        body.dark .stat-item { background: rgba(0,0,0,0.4); }
+        .stat-pending { color: #f59e0b; }
+        .stat-completed { color: #10b981; }
+        .stat-item i { font-size: 26px; }
+
+        .user-badge {
+            background: linear-gradient(135deg, #4F46E5, #7c3aed);
+            color: white;
+            padding: 16px 32px;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 16px;
+            box-shadow: 0 10px 30px rgba(79, 70, 229, 0.5);
         }
+        .admin-badge { background: linear-gradient(135deg, #f59e0b, #f97316); }
+
         .btn-logout {
             background: var(--danger);
             color: white;
-            padding: 8px 16px;
+            padding: 16px 32px;
             border: none;
-            border-radius: 8px;
+            border-radius: 50px;
             cursor: pointer;
-            font-size: 13px;
-            font-weight: 600;
-            transition: all 0.2s;
-        }
-        .btn-logout:hover {
-            background: #DC2626;
-        }
-        .main-grid {
-            display: grid;
-            grid-template-columns: 1fr 2fr;
-            gap: 30px;
-        }
-        @media (max-width: 1024px) {
-            .main-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-        .card {
-            background: white;
-            padding: 25px;
-            border-radius: 16px;
-            box-shadow: var(--shadow);
-        }
-        .card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            padding-bottom: 15px;
-            border-bottom: 2px solid var(--light);
-        }
-        .card-header h2 {
-            font-size: 18px;
-            color: var(--dark);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .task-form {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-        .task-input {
-            padding: 12px 16px;
-            border: 2px solid var(--border);
-            border-radius: 8px;
-            font-size: 14px;
-            transition: all 0.2s;
-        }
-        .task-input:focus {
-            outline: none;
-            border-color: var(--primary);
-        }
-        textarea.task-input {
-            resize: vertical;
-            min-height: 100px;
-            font-family: inherit;
-        }
-        .user-select {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            padding: 15px;
-            background: var(--light);
-            border-radius: 8px;
-        }
-        .user-checkbox {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 8px 12px;
-            background: white;
-            border: 2px solid var(--border);
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        .user-checkbox:hover {
-            border-color: var(--primary);
-        }
-        .user-checkbox input[type="checkbox"] {
-            cursor: pointer;
-        }
-        .user-checkbox.selected {
-            background: var(--primary);
-            color: white;
-            border-color: var(--primary);
-        }
-        .tasks-list {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            max-height: 600px;
-            overflow-y: auto;
-        }
-        .task-item {
-            padding: 20px;
-            background: var(--light);
-            border-radius: 12px;
-            border-left: 4px solid var(--primary);
-            transition: all 0.2s;
-            cursor: pointer;
-            opacity: 0;
-            transform: translateY(20px);
-            animation: fadeInUp 0.5s ease-out forwards;
-        }
-        /* ADICIONADO: Animação de entrada */
-        .task-item:nth-child(1) { animation-delay: 0.05s; }
-        .task-item:nth-child(2) { animation-delay: 0.10s; }
-        .task-item:nth-child(3) { animation-delay: 0.15s; }
-        .task-item:nth-child(4) { animation-delay: 0.20s; }
-        .task-item:nth-child(5) { animation-delay: 0.25s; }
-        @keyframes fadeInUp {
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .task-item:hover {
-            transform: translateX(4px);
-            box-shadow: var(--shadow);
-        }
-        .task-item.completed {
-            opacity: 0.6;
-            border-left-color: var(--secondary);
-        }
-        .task-item.completed .task-title {
-            text-decoration: line-through;
-        }
-        .task-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: start;
-            margin-bottom: 10px;
-        }
-        .task-title {
-            font-weight: 600;
-            color: var(--dark);
-            font-size: 16px;
-        }
-        .task-status {
-            padding: 4px 12px;
-            border-radius: 12px;
-            font-size: 12px;
-            font-weight: 600;
-        }
-        .status-pending {
-            background: #FEF3C7;
-            color: #92400E;
-        }
-        .status-completed {
-            background: #D1FAE5;
-            color: #065F46;
-        }
-        .task-description {
-            color: var(--text-light);
-            font-size: 14px;
-            margin-bottom: 12px;
-            line-height: 1.5;
-        }
-        .task-link {
-            display: block;
-            margin: 12px 0 8px;
-            font-size: 14px;
-            color: var(--primary);
-            text-decoration: underline;
-            word-break: break-all;
-        }
-        .task-link:hover {
-            color: var(--primary-dark);
-        }
-        .task-meta {
-            display: flex;
-            gap: 15px;
-            font-size: 12px;
-            color: var(--text-light);
-            flex-wrap: wrap;
-        }
-        .task-meta span {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-        /* ADICIONADO: Tooltip nos ícones */
-        .task-meta img {
-            transition: transform 0.3s;
-        }
-        .task-meta img:hover {
-            transform: scale(1.8);
-        }
-        /* ADICIONADO: Badge de urgência */
-        .urgent-badge {
-            font-size: 10px;
-            padding: 3px 8px;
-            border-radius: 6px;
             font-weight: 700;
-            margin-left: 8px;
+            transition: all 0.3s;
         }
-        .today-badge { background: #FECACA; color: #991B1B; }
-        .tomorrow-badge { background: #FEF3C7; color: #92400E; }
+        .btn-logout:hover { background: #dc2626; transform: translateY(-4px); }
 
-        .notification {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: white;
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: var(--shadow-lg);
-            max-width: 400px;
-            animation: slideIn 0.3s ease-out;
-            z-index: 1000;
-            border-left: 4px solid var(--primary);
+        .main-grid { 
+            display: grid; 
+            grid-template-columns: 1fr 2fr; 
+            gap: 40px; 
         }
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateX(100%);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
+        @media (max-width: 1024px) { 
+            .main-grid { grid-template-columns: 1fr; } 
         }
-        .notification-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-        .notification-title {
-            font-weight: 600;
-            color: var(--dark);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .notification-close {
-            background: none;
-            border: none;
-            cursor: pointer;
-            color: var(--text-light);
-            font-size: 18px;
-        }
-        .notification-body {
-            color: var(--text);
-            font-size: 14px;
-        }
-        .empty-state {
-            text-align: center;
+
+        .card {
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.2);
             padding: 40px;
-            color: var(--text-light);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            transition: all 0.4s ease;
         }
-        .empty-state i {
-            font-size: 48px;
-            margin-bottom: 15px;
-            opacity: 0.3;
-        }
-        .tabs {
+        .card:hover { transform: translateY(-10px); }
+
+        .card-header h2 {
+            font-size: 28px;
+            font-weight: 800;
+            background: linear-gradient(90deg, #4F46E5, #7c3aed);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
             display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-        }
-        .tab {
-            padding: 10px 20px;
-            background: var(--light);
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-            color: var(--text);
-            transition: all 0.2s;
-        }
-        .tab.active {
-            background: var(--primary);
-            color: white;
-        }
-        .loading {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid rgba(255,255,255,.3);
-            border-radius: 50%;
-            border-top-color: white;
-            animation: spin 1s ease-in-out infinite;
-        }
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-        /* PWA Install Button */
-        #installButton {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: var(--primary);
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 56px;
-            height: 56px;
-            font-size: 24px;
-            box-shadow: var(--shadow-lg);
-            cursor: pointer;
-            z-index: 1000;
-            display: none;
             align-items: center;
-            justify-content: center;
-        }
-        #installButton:hover {
-            background: var(--primary-dark);
-            transform: scale(1.1);
+            gap: 16px;
+            margin-bottom: 32px;
         }
 
-        /* ADICIONADO: Busca + Modo Escuro Toggle */
-        .search-bar {
-            margin-bottom: 15px;
-        }
-        .search-bar input {
+        .task-input, .search-bar input {
             width: 100%;
-            padding: 12px 16px;
-            border: 2px solid var(--border);
-            border-radius: 8px;
-            font-size: 14px;
+            padding: 20px 24px;
+            border: 2px solid transparent;
+            border-radius: 18px;
+            font-size: 17px;
+            background: rgba(255,255,255,0.4);
+            backdrop-filter: blur(12px);
+            transition: all 0.3s;
+            margin-bottom: 18px;
         }
+        .task-input:focus, .search-bar input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 6px rgba(79,70,229,0.25);
+            outline: none;
+        }
+
+        /* Toggle com seu ícone oficial do GitHub */
         .theme-toggle {
             position: fixed;
             bottom: 90px;
-            right: 20px;
+            right: 24px;
             z-index: 999;
         }
         #themeSwitch { display: none; }
         .toggle-label {
             display: block;
-            width: 64px;
-            height: 34px;
-            background: #ccc;
-            border-radius: 34px;
+            width: 84px;
+            height: 52px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 50px;
             position: relative;
             cursor: pointer;
-            transition: 0.3s;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.6);
+            overflow: hidden;
         }
-        .toggle-label .ball {
+        .toggle-label img {
             position: absolute;
-            top: 4px;
-            left: 4px;
-            width: 26px;
-            height: 26px;
+            top: 12px;
+            width: 28px;
+            height: 28px;
+            transition: all 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+        .moon-icon { left: 14px; z-index: 2; }
+        .sun-icon { right: -40px; opacity: 0; }
+        .toggle-ball {
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            width: 36px;
+            height: 36px;
             background: white;
             border-radius: 50%;
-            transition: 0.3s;
+            transition: all 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
         }
-        .toggle-label i {
-            position: absolute;
-            top: 7px;
-            font-size: 16px;
-            transition: 0.3s;
+        #themeSwitch:checked + .toggle-label .toggle-ball { transform: translateX(32px); }
+        #themeSwitch:checked + .toggle-label .moon-icon { transform: translateX(-50px); opacity: 0; }
+        #themeSwitch:checked + .toggle-label .sun-icon { right: 14px; opacity: 1; }
+
+        .tabs {
+            display: flex;
+            gap: 16px;
+            margin: 32px 0;
+            flex-wrap: wrap;
         }
-        .fa-moon { left: 10px; color: #f1c40f; }
-        .fa-sun { right: 10px; color: #f39c12; opacity: 0; }
-        #themeSwitch:checked + .toggle-label { background: #4F46E5; }
-        #themeSwitch:checked + .toggle-label .ball { transform: translateX(30px); }
-        #themeSwitch:checked + .toggle-label .fa-moon { opacity: 0; }
-        #themeSwitch:checked + .toggle-label .fa-sun { opacity: 1; }
+        .tab {
+            padding: 18px 36px;
+            border-radius: 50px;
+            font-weight: 700;
+            transition: all 0.4s;
+            background: rgba(255,255,255,0.4);
+            backdrop-filter: blur(12px);
+            cursor: pointer;
+        }
+        .tab.active {
+            background: linear-gradient(135deg, #4F46E5, #7c3aed);
+            color: white;
+            box-shadow: 0 10px 30px rgba(79,70,229,0.5);
+        }
+
+        .tasks-list {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+            max-height: 750px;
+            overflow-y: auto;
+            padding-right: 8px;
+        }
+        .task-item {
+            padding: 36px;
+            background: rgba(255,255,255,0.45);
+            border-radius: 28px;
+            border-left: 8px solid var(--primary);
+            transition: all 0.5s ease;
+            cursor: pointer;
+            opacity: 0;
+            transform: translateY(50px);
+            animation: fadeInUp 0.8s ease-out forwards;
+        }
+        .task-item:hover {
+            transform: translateY(-12px) scale(1.03);
+            box-shadow: 0 30px 60px rgba(0,0,0,0.25);
+        }
+        .task-item.completed {
+            opacity: 0.7;
+            border-left-color: var(--secondary);
+        }
+        .task-title {
+            font-size: 20px;
+            font-weight: 800;
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .urgent-badge {
+            font-size: 12px;
+            padding: 8px 16px;
+            border-radius: 14px;
+            font-weight: 900;
+        }
+        .today-badge { background: #fee2e2; color: #991b1b; }
+        .tomorrow-badge { background: #fffbeb; color: #92400e; }
+
+        .task-meta img { 
+            transition: transform 0.4s; 
+            width: 20px; 
+            height: 20px; 
+            vertical-align: middle; 
+            margin-right: 10px;
+        }
+        .task-meta img:hover { transform: scale(2.5); }
+
+        #installButton {
+            position: fixed;
+            bottom: 28px;
+            right: 28px;
+            background: linear-gradient(135deg, #4F46E5, #7c3aed);
+            color: white;
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            font-size: 36px;
+            box-shadow: 0 15px 40px rgba(79,70,229,0.7);
+            z-index: 1000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            animation: pulse 2.5s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 15px 40px rgba(79,70,229,0.7); }
+            70% { box-shadow: 0 15px 60px rgba(79,70,229,0.9); }
+        }
+        @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
+
+        .empty-state {
+            text-align: center;
+            padding: 100px 20px;
+            color: rgba(255,255,255,0.8);
+        }
+        .empty-state i {
+            font-size: 90px;
+            margin-bottom: 24px;
+            opacity: 0.4;
+        }
     </style>
 </head>
 <body>
-    <!-- PWA Install Button -->
-    <button id="installButton" title="Instalar TaskFlow">
-        Download Icon
-    </button>
+    <button id="installButton" title="Instalar TaskFlow">Download Icon</button>
 
-    <!-- ADICIONADO: Toggle Modo Escuro -->
+    <!-- Toggle com seu ícone oficial do GitHub -->
     <div class="theme-toggle">
         <input type="checkbox" id="themeSwitch" onchange="toggleTheme()">
         <label for="themeSwitch" class="toggle-label">
-            Moon Icon Sun Icon <span class="ball"></span>
+            <img src="https://github.com/ErickBarroso124500/todolistvntech/blob/main/Moon%20Icon%20Sun%20Icon.png?raw=true" class="moon-icon" alt="Moon">
+            <img src="https://github.com/ErickBarroso124500/todolistvntech/blob/main/Moon%20Icon%20Sun%20Icon.png?raw=true" class="sun-icon" alt="Sun">
+            <div class="toggle-ball"></div>
         </label>
     </div>
 
-    <!-- Tela de Login/Cadastro -->
     <div id="authScreen" class="auth-container">
         <div class="auth-card">
             <div class="auth-header">
@@ -618,76 +351,59 @@
                 <label for="password">Senha</label>
                 <input type="password" id="password" placeholder="Digite sua senha">
             </div>
-            <button class="btn btn-primary" onclick="handleLogin()">
-                Entrar
-            </button>
-            <button class="btn btn-secondary" onclick="handleRegister()">
-                Criar Conta
-            </button>
+            <button class="btn btn-primary" onclick="handleLogin()">Entrar</button>
+            <button class="btn btn-secondary" onclick="handleRegister()">Criar Conta</button>
         </div>
     </div>
-    <!-- Dashboard -->
+
     <div id="dashboard" class="dashboard">
         <div class="container">
             <div class="header">
                 <div class="header-left">
                     <h1>TaskFlow</h1>
-                    <p>Gerencie suas tarefas com eficiência</p>
+                    <div class="stats-grid">
+                        <div class="stat-item stat-pending"><i class="fas fa-clock"></i> <span id="pendingCount">0</span> Pendentes</div>
+                        <div class="stat-item stat-completed"><i class="fas fa-check-circle"></i> <span id="completedCount">0</span> Concluídas</div>
+                    </div>
                 </div>
                 <div class="header-right">
-                    <span class="user-badge" id="userBadge">
-                        <span id="userName"></span>
-                    </span>
-                    <button class="btn-logout" onclick="handleLogout()">
-                        Sair
-                    </button>
+                    <span class="user-badge" id="userBadge"><span id="userName"></span></span>
+                    <button class="btn-logout" onclick="handleLogout()">Sair</button>
                 </div>
             </div>
+
             <div class="main-grid">
-                <!-- Criar Tarefa (admin e usuários) -->
                 <div id="createTaskCard" class="card">
-                    <div class="card-header">
-                        <h2>Nova Tarefa</h2>
-                    </div>
+                    <div class="card-header"><h2>Nova Tarefa</h2></div>
                     <form class="task-form" onsubmit="createTask(event)">
                         <input type="text" class="task-input" id="taskTitle" placeholder="Título da tarefa" required>
                         <textarea class="task-input" id="taskDescription" placeholder="Descrição detalhada da tarefa"></textarea>
                         <input type="url" class="task-input" id="taskLink" placeholder="Link (opcional)">
-                        <input type="date" class="task-input" id="taskDueDate" placeholder="Data de vencimento">
-                        <div id="adminUserSelect" style="display: none;">
-                            <label style="margin-bottom: 10px; display: block; font-weight: 600;">Atribuir para:</label>
+                        <input type="date" class="task-input" id="taskDueDate">
+                        <div id="adminUserSelect" style="display:none; margin:28px 0;">
+                            <label style="font-weight:700; margin-bottom:16px; display:block; font-size:18px;">Atribuir para:</label>
                             <div class="user-select" id="userSelect"></div>
                         </div>
-                        <label style="display: flex; align-items: center; gap: 8px; padding: 12px; background: var(--light); border-radius: 8px; cursor: pointer;">
+                        <label style="display:flex; align-items:center; gap:16px; padding:24px; background:rgba(255,255,255,0.4); border-radius:20px; cursor:pointer; backdrop-filter:blur(12px); margin:24px 0; font-size:17px;">
                             <input type="checkbox" id="taskForMyself" checked onchange="toggleAssignmentMode()">
-                            <span style="font-weight: 500;">Criar tarefa para mim mesmo</span>
+                            <span style="font-weight:700;">Criar tarefa para mim mesmo</span>
                         </label>
-                        <button type="submit" class="btn btn-primary">
+                        <button type="submit" class="btn btn-primary" style="height:68px; font-size:19px; font-weight:700; margin-top:12px;">
                             Criar Tarefa
                         </button>
                     </form>
                 </div>
-                <!-- Lista de Tarefas -->
+
                 <div class="card">
-                    <div class="card-header">
-                        <h2>Minhas Tarefas</h2>
-                    </div>
-                    <!-- ADICIONADO: Busca -->
+                    <div class="card-header"><h2>Minhas Tarefas</h2></div>
                     <div class="search-bar">
                         <input type="text" id="searchTask" placeholder="Buscar tarefas..." onkeyup="searchTasks()">
                     </div>
                     <div class="tabs">
-                        <button class="tab active" onclick="filterTasks('pending')">
-                            Pendentes
-                        </button>
-                        <button class="tab" onclick="filterTasks('completed')">
-                            Concluídas
-                        </button>
-                        <button class="tab" onclick="filterTasks('all')">
-                            Todas
-                        </button>
-                        <!-- ADICIONADO: Botão Concluir Todas -->
-                        <button class="tab" onclick="markAllCompleted()" style="background:#10B981;color:white;margin-left:auto;">
+                        <button class="tab active" onclick="filterTasks('pending')">Pendentes</button>
+                        <button class="tab" onclick="filterTasks('completed')">Concluídas</button>
+                        <button class="tab" onclick="filterTasks('all')">Todas</button>
+                        <button class="tab" onclick="markAllCompleted()" style="background:linear-gradient(135deg,#10b981,#059669); margin-left:auto; font-weight:700;">
                             Concluir Todas
                         </button>
                     </div>
@@ -696,20 +412,17 @@
             </div>
         </div>
     </div>
-    <!-- Service Worker Registration & PWA Install -->
+
     <script>
-        // CONFIGURAÇÃO DO SUPABASE
         const SUPABASE_URL = 'https://djxcvgrunadpkzwpxtom.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRqeGN2Z3J1bmFkcGt6d3B4dG9tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI0NjczOTYsImV4cCI6MjA3ODA0MzM5Nn0.CRTsAj-yIqXJwrx1CGh6dhTjvsgyazHidOseJQwyRpI';
-     
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-       
+
         let currentUser = null;
         let currentFilter = 'pending';
         let notificationTimeout = null;
         let deferredPrompt;
 
-        // === ADICIONADO: Modo Escuro ===
         function toggleTheme() {
             document.body.classList.toggle('dark');
             localStorage.setItem('theme', document.body.classList.contains('dark') ? 'dark' : 'light');
@@ -719,7 +432,6 @@
             document.getElementById('themeSwitch').checked = true;
         }
 
-        // === PWA: Registrar Service Worker ===
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('data:text/javascript;base64,Y29uc3QgdmVyc2lvbiA9IDE7CnNlbGYuYWRkRXZlbnRMaXN0ZW5lcignZmV0Y2gnLCBldmVudCA9PiB7CiAgY29uc3QgdXJsID0gZXZlbnQucmVxdWVzdC51cmw7CiAgaWYgKHVybC5pbmNsdWRlcycvaWNvbi5wbmcpKSB7CiAgICBldmVudC5yZXNwb25kV2l0aChjYWNoZXMubWF0Y2goZXZlbnQucmVxdWVzdC5yZXF1ZXN0KSB8fCBmZXRjaChldmVudC5yZXF1ZXN0KSl9Cn0pOwpzZWxmLmFkZEV2ZW50TGlzdGVuZXIoJ2luc3RhbGwnLCBldmVudCA9PiB7fSk7')
@@ -727,32 +439,29 @@
                     .catch(err => console.log('SW erro:', err));
             });
         }
-        // === PWA: Capturar evento de instalação ===
+
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
             deferredPrompt = e;
-            const installBtn = document.getElementById('installButton');
-            installBtn.style.display = 'flex';
-            installBtn.onclick = () => {
-                installBtn.style.display = 'none';
+            document.getElementById('installButton').style.display = 'flex';
+            document.getElementById('installButton').onclick = () => {
+                document.getElementById('installButton').style.display = 'none';
                 deferredPrompt.prompt();
                 deferredPrompt.userChoice.then(choice => {
-                    if (choice.outcome === 'accepted') {
-                        console.log('PWA instalado');
-                    }
+                    if (choice.outcome === 'accepted') console.log('PWA instalado');
                     deferredPrompt = null;
                 });
             };
         });
-        // Verificar se já está logado
+
         const savedUser = localStorage.getItem('currentUser');
         if (savedUser) {
             currentUser = JSON.parse(savedUser);
             showDashboard();
         }
-        // FUNÇÕES DE AUTENTICAÇÃO
+
         async function handleLogin() {
-            const username = document.getElementById('username').value.trim();
+             const username = document.getElementById('username').value.trim();
             const password = document.getElementById('password').value;
             if (!username || !password) {
                 showNotification('Erro', 'Por favor, preencha todos os campos');
@@ -790,7 +499,7 @@
             showDashboard();
             showNotification('Bem-vindo!', `Olá, ${currentUser.username}!`);
         }
-        async function handleRegister() {
+        async function handleRegister()  {
             const username = document.getElementById('username').value.trim();
             const password = document.getElementById('password').value;
             if (!username || !password) {
@@ -815,7 +524,7 @@
             }
             showNotification('Sucesso!', 'Conta criada! Faça login agora.');
         }
-        function handleLogout() {
+       function handleLogout() {
             localStorage.removeItem('currentUser');
             currentUser = null;
             document.getElementById('dashboard').classList.remove('active');
@@ -1177,6 +886,5 @@
         if ('Notification' in window && Notification.permission === 'default') {
             requestNotificationPermission();
         }
-    </script>
 </body>
 </html>
