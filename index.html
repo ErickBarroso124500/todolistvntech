@@ -849,43 +849,63 @@
             return date.toLocaleDateString('pt-BR');
         }
 
-        function displayTasks(tasks) {
-            const filtered = tasks.filter(task => {
-                if (currentFilter === 'pending') return !task.completed;
-                if (currentFilter === 'completed') return task.completed;
-                return true;
-            });
+      function displayTasks(tasks) {
+  const filtered = tasks.filter(task => {
+    if (currentFilter === 'pending') return !task.completed;
+    if (currentFilter === 'completed') return task.completed;
+    return true;
+  });
 
-            const tasksList = document.getElementById('tasksList');
+  const tasksList = document.getElementById('tasksList');
 
-            if (filtered.length === 0) {
-                tasksList.innerHTML = `
-                    <div class="empty-state">
-                        <p>Nenhuma tarefa encontrada</p>
-                    </div>
-                `;
-                return;
-            }
+  if (filtered.length === 0) {
+    tasksList.innerHTML = `
+      <div class="empty-state">
+        <i class="fas fa-tasks"></i>
+        <p>Nenhuma tarefa encontrada</p>
+      </div>
+    `;
+    return;
+  }
 
-            tasksList.innerHTML = filtered.map(task => `
-                <div class="task-item ${task.completed ? 'completed' : ''}" onclick="toggleTaskCompletion('${task.id}', ${task.completed})">
-                    <div class="task-header">
-                        <div class="task-title">${task.title}</div>
-                        <span class="task-status ${task.completed ? 'status-completed' : 'status-pending'}">
-                            ${task.completed ? 'Concluída' : 'Pendente'}
-                        </span>
-                    </div>
-                    ${task.description ? `<div class="task-description">${task.description}</div>` : ''}
-                    ${task.link ? `<a href="${task.link}" class="task-link" target="_blank" rel="noopener" onclick="event.stopPropagation()">Acessar Link</a>` : ''}
-                    <div class="task-meta">
-                        <span>User Icon ${task.assigned_user?.username || 'N/A'}</span>
-                        <span>User Plus Icon Criado por: ${task.creator?.username || 'N/A'}</span>
-                        <span>Calendar Icon ${new Date(task.created_at).toLocaleDateString('pt-BR')}</span>
-                        ${task.due_date ? `<span>Clock Icon Vence em: ${formatDateBR(task.due_date)}</span>` : ''}
-                    </div>
-                </div>
-            `).join('');
-        }
+ tasksList.innerHTML = filtered.map(task => `
+    <div class="task-item ${task.completed ? 'completed' : ''}" onclick="toggleTaskCompletion('${task.id}', ${task.completed})">
+      <div class="task-header">
+        <div class="task-title">${task.title}</div>
+        <span class="task-status ${task.completed ? 'status-completed' : 'status-pending'}">
+          ${task.completed ? 'Concluída' : 'Pendente'}
+        </span>
+      </div>
+      ${task.description ? `<div class="task-description">${task.description}</div>` : ''}
+      ${task.link ? `<a href="${task.link}" class="task-link" target="_blank" rel="noopener" onclick="event.stopPropagation()">Acessar Link</a>` : ''}
+      
+      <div class="task-meta">
+        <span>
+          <img src="https://raw.githubusercontent.com/ErickBarroso124500/todolistvntech/main/User%20Icon.jpeg" 
+               alt="Usuário" style="width:16px;height:16px;vertical-align:middle;margin-right:6px;">
+          ${task.assigned_user?.username || 'N/A'}
+        </span>
+        <span>
+          <img src="https://raw.githubusercontent.com/ErickBarroso124500/todolistvntech/main/User%20Plus%20Icon.png" 
+               alt="Criado por" style="width:16px;height:16px;vertical-align:middle;margin-right:6px;">
+          Criado por: ${task.creator?.username || 'N/A'}
+        </span>
+        <span>
+          <img src="https://raw.githubusercontent.com/ErickBarroso124500/todolistvntech/main/Calendar%20Icon.png" 
+               alt="Data" style="width:16px;height:16px;vertical-align:middle;margin-right:6px;">
+          ${new Date(task.created_at).toLocaleDateString('pt-BR')}
+        </span>
+        ${task.due_date ? `
+          <span>
+            <img src="https://raw.githubusercontent.com/ErickBarroso124500/todolistvntech/main/Calendar%20Icon.png" 
+                 alt="Vencimento" style="width:16px;height:16px;vertical-align:middle;margin-right:6px;">
+            Vence em: ${formatDateBR(task.due_date)}
+          </span>
+        ` : ''}
+      </div>
+    </div>
+  `).join('');
+}
 
         async function toggleTaskCompletion(taskId, isCompleted) {
             const newStatus = !isCompleted;
@@ -1027,3 +1047,4 @@
     </script>
 </body>
 </html>
+
